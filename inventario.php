@@ -764,4 +764,6 @@ $productos = mysqli_query($conexion, "SELECT p.*, d.nombre as nombre_depto
         }
     </script>
 </body>
+    <body>
+<?php include_once __DIR__ . '/sidebar.php'; ?>
 </html>
