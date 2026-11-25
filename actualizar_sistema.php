@@ -307,7 +307,19 @@ $releaseNotes = is_array($remoteData) ? (string) ($remoteData['release_notes'] ?
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Actualizaciones | POS System Pro</title>
     <style>
-        body{font-family:Arial,sans-serif;background:#f5f6fa;color:#202633;margin:0;padding:24px}.card{max-width:680px;margin:6vh auto;background:#fff;padding:30px;border-radius:16px;box-shadow:0 14px 40px rgba(31,41,55,.08)}h1{margin-top:0}.status{padding:14px;border-radius:10px;background:#eef4ff;border:1px solid #cbdcff}.status.success{background:#ecfdf3;border-color:#b7e4c7}.status.error{background:#fff1f0;border-color:#ffc9c5}.muted{color:#667085}.warning{padding:14px;border-radius:10px;background:#fff8e1;border:1px solid #ead58b}.button{display:inline-block;border:0;border-radius:8px;padding:12px 18px;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer}
+        body{font-family:Arial,sans-serif;background:#f5f6fa;color:#202633;margin:0;padding:24px}
+        .card{max-width:680px;margin:6vh auto;background:#fff;padding:30px;border-radius:16px;box-shadow:0 14px 40px rgba(32,38,51,.1)}
+        h1{margin-top:0}
+        .muted{color:#667085}
+        .status{padding:16px;border-radius:10px;background:#eef4ff;margin:20px 0}
+        .status.success{background:#e8f7ed;color:#176b35}
+        .status.error{background:#fff0f0;color:#a12626}
+        .warning{padding:14px;background:#fff8e6;border-radius:10px;line-height:1.5}
+        .button{display:inline-block;border:0;border-radius:8px;padding:12px 18px;background:#2457d6;color:#fff;font-size:15px;text-decoration:none;cursor:pointer}
+        .button:hover{background:#1946b5}
+        .button-back{margin-top:10px;background:#586174}
+        .button-back:hover{background:#424a59}
+        @media(max-width:600px){body{padding:12px}.card{padding:22px}}
     </style>
 </head>
 <body>
@@ -316,6 +328,9 @@ $releaseNotes = is_array($remoteData) ? (string) ($remoteData['release_notes'] ?
     <p class="muted">Versión instalada: <strong><?= htmlspecialchars($localVersion, ENT_QUOTES, 'UTF-8') ?></strong></p>
     <?php if ($message !== ''): ?>
         <div class="status <?= htmlspecialchars($messageType, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></div>
+        <?php if ($messageType === 'success'): ?>
+            <button class="button button-back" type="button" onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = 'index.php'; }">Volver</button>
+        <?php endif; ?>
     <?php elseif ($available): ?>
         <div class="status"><strong>Actualización disponible: <?= htmlspecialchars((string) $remoteData['tag'], ENT_QUOTES, 'UTF-8') ?></strong>
             <?php if ($releaseNotes !== ''): ?><p><?= nl2br(htmlspecialchars($releaseNotes, ENT_QUOTES, 'UTF-8')) ?></p><?php endif; ?>
@@ -323,7 +338,7 @@ $releaseNotes = is_array($remoteData) ? (string) ($remoteData['release_notes'] ?
     <?php else: ?>
         <div class="status">Tu sistema está actualizado<?= is_array($remoteData) ? ' (release ' . htmlspecialchars((string) ($remoteData['tag'] ?? ''), ENT_QUOTES, 'UTF-8') . ')' : '' ?>.</div>
     <?php endif; ?>
-    <p class="warning"><strong>Antes de continuar:</strong> realiza un respaldo de la base de datos y de los archivos del servidor. La actualización reemplaza los archivos de la aplicación, pero conserva <code>conexion.php</code>, <code>.htaccess</code> y <code>facturas_adjuntas/</code>.</p>
+    <p class="warning"><strong>Antes de continuar:</strong> realiza un respaldo de la base de datos y de los archivos del servidor. La actualización reemplaza los archivos de la aplicación, pero conserva la conexión a la base de datos, .htaccess y los datos de facturas_adjuntas.</p>
     <?php if ($available): ?>
         <form method="post" onsubmit="return confirm('¿Instalar la actualización desde el último release estable? Asegúrate de tener un respaldo reciente de archivos y base de datos.');">
             <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['pos_update_csrf'], ENT_QUOTES, 'UTF-8') ?>">
