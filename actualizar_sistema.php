@@ -329,7 +329,7 @@ $releaseNotes = is_array($remoteData) ? (string) ($remoteData['release_notes'] ?
     <?php if ($message !== ''): ?>
         <div class="status <?= htmlspecialchars($messageType, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></div>
         <?php if ($messageType === 'success'): ?>
-            <button class="button button-back" type="button" onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = 'index.php'; }">Volver</button>
+            <a class="button button-back" href="index.php">Volver al sistema</a>
         <?php endif; ?>
     <?php elseif ($available): ?>
         <div class="status"><strong>Actualización disponible: <?= htmlspecialchars((string) $remoteData['tag'], ENT_QUOTES, 'UTF-8') ?></strong>
