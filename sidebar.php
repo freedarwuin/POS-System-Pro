@@ -25,6 +25,12 @@ function pos_sidebar_active(string $current_page, array $pages): string {
         box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
     }
 
+    /* Reserva el espacio del menú aunque la página no use un contenedor especial. */
+    body:has(.pos-sidebar) {
+        padding-left: 280px;
+        box-sizing: border-box;
+    }
+
     .pos-sidebar h2 {
         color: #ffffff;
         font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
@@ -85,6 +91,10 @@ function pos_sidebar_active(string $current_page, array $pages): string {
             width: 100%;
             min-width: 100%;
             height: auto;
+        }
+
+        body:has(.pos-sidebar) {
+            padding-left: 0;
         }
 
         .pos-sidebar-spacer,
