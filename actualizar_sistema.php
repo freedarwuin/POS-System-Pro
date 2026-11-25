@@ -11,9 +11,7 @@ if (empty($_SESSION['usuario']) || ($_SESSION['rol'] ?? '') !== 'Admin') {
 }
 
 const POS_UPDATE_REPO = 'freedarwuin/POS-System-Pro';
-const POS_UPDATE_BRANCH = 'main';
-const POS_UPDATE_VERSION_URL = 'https://raw.githubusercontent.com/freedarwuin/POS-System-Pro/main/version.json';
-const POS_UPDATE_ARCHIVE_URL = 'https://codeload.github.com/freedarwuin/POS-System-Pro/zip/refs/heads/main';
+const POS_UPDATE_API_URL = 'https://api.github.com/repos/freedarwuin/POS-System-Pro/releases/latest';
 
 $root = __DIR__;
 $versionFile = $root . DIRECTORY_SEPARATOR . 'version.json';
@@ -31,13 +29,13 @@ function posUpdateFetch(string $url, int $maxBytes): string
             'timeout' => 20,
             'follow_location' => 1,
             'max_redirects' => 3,
-            'header' => "User-Agent: POS-System-Pro-Updater\r\nAccept: application/json, application/zip\r\n",
+            'header' => "User-Agent: POS-System-Pro-Updater\r\nAccept: application/vnd.github+json\r\nX-GitHub-Api-Version: 2022-11-28\r\n",
         ],
         'ssl' => ['verify_peer' => true, 'verify_peer_name' => true],
     ]);
     $data = @file_get_contents($url, false, $context, 0, $maxBytes + 1);
     if ($data === false || strlen($data) > $maxBytes) {
-        throw new RuntimeException('No se pudo descargar la actualización o el archivo excede el límite permitido.');
+        throw new RuntimeException('No se pudo descargar la información o el archivo excede el límite permitido.');
     }
     return $data;
 }
@@ -70,11 +68,23 @@ function posUpdateSafePath(string $relativePath): bool
 
 function posUpdateCheck(): array
 {
-    $json = json_decode(posUpdateFetch(POS_UPDATE_VERSION_URL, 65536), true);
-    if (!is_array($json) || empty($json['version']) || !preg_match('/^\d+(?:\.\d+){1,3}(?:[-+][A-Za-z0-9.-]+)?$/', (string) $json['version'])) {
-        throw new RuntimeException('El archivo version.json remoto no tiene un formato de versión válido.');
+    $release = json_decode(posUpdateFetch(POS_UPDATE_API_URL, 65536), true);
+    if (!is_array($release) || empty($release['tag_name'])) {
+        throw new RuntimeException('No se pudo obtener el release estable más reciente.');
     }
-    return $json;
+
+    $tag = (string) $release['tag_name'];
+    $version = ltrim($tag, 'vV');
+    if (!preg_match('/^\d+(?:\.\d+){1,3}(?:[-+][A-Za-z0-9.-]+)?$/', $version)) {
+        throw new RuntimeException('El tag del release no tiene un formato de versión válido.');
+    }
+
+    return [
+        'version' => $version,
+        'tag' => $tag,
+        'release_notes' => (string) ($release['body'] ?? ''),
+        'archive_url' => 'https://codeload.github.com/' . POS_UPDATE_REPO . '/zip/refs/tags/' . rawurlencode($tag),
+    ];
 }
 
 try {
@@ -100,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['instalar'])) {
             throw new RuntimeException('El servidor no tiene habilitada la extensión PHP ZipArchive.');
         }
 
-        $archiveBytes = posUpdateFetch(POS_UPDATE_ARCHIVE_URL, 50 * 1024 * 1024);
+        $archiveBytes = posUpdateFetch($remoteData['archive_url'], 50 * 1024 * 1024);
         $tempBase = tempnam(sys_get_temp_dir(), 'pos-update-');
         if ($tempBase === false) {
             throw new RuntimeException('No se pudo crear un archivo temporal.');
@@ -185,7 +195,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['instalar'])) {
                 throw new RuntimeException('El paquete no contiene archivos instalables.');
             }
 
-            // Respalda todos los archivos que serán reemplazados antes de modificar el proyecto.
             foreach ($stagedFiles as $relative) {
                 $target = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relative);
                 if (is_link($target)) {
@@ -234,11 +243,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['instalar'])) {
                 throw $installError;
             }
 
-            $message = 'Actualización instalada correctamente (versión ' . $remoteVersion . '). Se conservaron la conexión a la base de datos, .htaccess y los archivos adjuntos.';
+            $message = 'Actualización instalada correctamente desde el release ' . $remoteData['tag'] . ' (versión ' . $remoteVersion . '). Se conservaron la conexión a la base de datos, .htaccess y los archivos adjuntos.';
             $messageType = 'success';
             $localVersion = $remoteVersion;
         } finally {
-            if ($zip->status === ZipArchive::ER_OPEN) {
+            if (isset($zip) && $zip->status === ZipArchive::ER_OPEN) {
                 $zip->close();
             }
             @unlink($zipPath);
@@ -276,7 +285,7 @@ $releaseNotes = is_array($remoteData) ? (string) ($remoteData['release_notes'] ?
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Actualizaciones | POS System Pro</title>
     <style>
-        body{font-family:Arial,sans-serif;background:#f5f6fa;color:#202633;margin:0;padding:24px}.card{max-width:680px;margin:6vh auto;background:#fff;padding:30px;border-radius:16px;box-shadow:0 8px 30px #17203312}h1{margin-top:0}.status{padding:14px;border-radius:10px;background:#eef4fe;margin:18px 0}.success{background:#e8f7ed}.error{background:#fdeaea}.warning{font-size:.92rem;color:#555;line-height:1.55}.button{background:#d81b60;color:#fff;border:0;border-radius:8px;padding:12px 18px;font-size:1rem;font-weight:bold;cursor:pointer}.button:disabled{opacity:.55;cursor:wait}.muted{color:#667085}
+        body{font-family:Arial,sans-serif;background:#f5f6fa;color:#202633;margin:0;padding:24px}.card{max-width:680px;margin:6vh auto;background:#fff;padding:30px;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)}h1{margin-top:0}.muted{color:#667085}.status{padding:14px 16px;border-radius:10px;background:#edf5ff;margin:16px 0;border-left:4px solid #2f73cc}.status.success{background:#edf9f0;border-left-color:#25844a}.status.error{background:#fff1f1;border-left-color:#c62f2f}.warning{padding:12px 14px;border-radius:8px;background:#fff8e5}.button{border:0;border-radius:8px;padding:12px 18px;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer}.button:hover{background:#1d4ed8}
     </style>
 </head>
 <body>
@@ -286,20 +295,20 @@ $releaseNotes = is_array($remoteData) ? (string) ($remoteData['release_notes'] ?
     <?php if ($message !== ''): ?>
         <div class="status <?= htmlspecialchars($messageType, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></div>
     <?php elseif ($available): ?>
-        <div class="status"><strong>Actualización disponible: <?= htmlspecialchars((string) $remoteData['version'], ENT_QUOTES, 'UTF-8') ?></strong>
+        <div class="status"><strong>Actualización disponible: <?= htmlspecialchars((string) $remoteData['tag'], ENT_QUOTES, 'UTF-8') ?></strong>
             <?php if ($releaseNotes !== ''): ?><p><?= nl2br(htmlspecialchars($releaseNotes, ENT_QUOTES, 'UTF-8')) ?></p><?php endif; ?>
         </div>
     <?php else: ?>
-        <div class="status">Tu sistema está actualizado<?= is_array($remoteData) ? ' (versión ' . htmlspecialchars((string) ($remoteData['version'] ?? ''), ENT_QUOTES, 'UTF-8') . ')' : '' ?>.</div>
+        <div class="status">Tu sistema está actualizado<?= is_array($remoteData) ? ' (release ' . htmlspecialchars((string) ($remoteData['tag'] ?? ''), ENT_QUOTES, 'UTF-8') . ')' : '' ?>.</div>
     <?php endif; ?>
-    <p class="warning"><strong>Antes de continuar:</strong> realiza un respaldo de la base de datos y de los archivos del servidor. La actualización reemplaza los archivos de la aplicación, pero conserva <code>conexion.php</code>, <code>.htaccess</code> y <code>facturas_adjuntas/</code>. No ejecuta migraciones de base de datos; cualquier cambio SQL deberá aplicarse por separado.</p>
+    <p class="warning"><strong>Antes de continuar:</strong> realiza un respaldo de la base de datos y de los archivos del servidor. La actualización reemplaza los archivos de la aplicación, pero conserva <code>conexion.php</code>, <code>.htaccess</code> y <code>facturas_adjuntas/</code>.</p>
     <?php if ($available): ?>
-        <form method="post" onsubmit="return confirm('¿Instalar la actualización? Asegúrate de tener un respaldo reciente de archivos y base de datos.');">
+        <form method="post" onsubmit="return confirm('¿Instalar la actualización desde el último release estable? Asegúrate de tener un respaldo reciente de archivos y base de datos.');">
             <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['pos_update_csrf'], ENT_QUOTES, 'UTF-8') ?>">
             <button class="button" type="submit" name="instalar" value="1">Descargar e instalar actualización</button>
         </form>
     <?php endif; ?>
-    <p class="muted"><small>La versión publicada debe actualizarse en <code>version.json</code> para que los clientes detecten una nueva versión.</small></p>
+    <p class="muted"><small>Las versiones se toman del último GitHub Release estable y el paquete se descarga desde el ZIP asociado a su tag.</small></p>
 </main>
 </body>
 </html>
