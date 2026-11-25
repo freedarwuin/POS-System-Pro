@@ -30,6 +30,13 @@ if ($bloqueado) {
     header("Location: licencia_bloqueada.php?msj=" . urlencode($mensajeError));
     exit();
 }
+
+// Leer la versión actual desde el archivo de configuración del sistema
+$versionSistema = '1.0.0';
+$datosVersion = json_decode(@file_get_contents(__DIR__ . '/version.json'), true);
+if (is_array($datosVersion) && !empty($datosVersion['version'])) {
+    $versionSistema = $datosVersion['version'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -269,6 +276,13 @@ if ($bloqueado) {
     .logo-text { font-size: 1.8rem; font-weight: 800; margin-bottom: 30px; }
     .logo-text span { color: var(--accent-red); }
 
+    .version-info {
+        margin-top: 8px;
+        font-size: 0.68rem;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+    }
+
     /* --- RESPONSIVE --- */
     @media (max-width: 1024px) {
         .bot-wrapper { display: none; }
@@ -320,6 +334,9 @@ if ($bloqueado) {
 
                 <div style="margin-top: 30px; font-size: 0.7rem; color: var(--text-muted);">
                     SISTEMA PROTEGIDO POR POS PRO © 2026
+                </div>
+                <div class="version-info">
+                    Versión actualizada: <?php echo htmlspecialchars($versionSistema, ENT_QUOTES, 'UTF-8'); ?>
                 </div>
             </div>
         </div>
