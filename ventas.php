@@ -1430,4 +1430,5 @@ document.addEventListener('keydown', function(e) {
 });
 </script>
 </body>
+    <?php include_once __DIR__ . '/sidebar.php'; ?>
 </html>
