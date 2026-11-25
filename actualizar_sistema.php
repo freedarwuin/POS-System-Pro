@@ -13,30 +13,24 @@ if (empty($_SESSION['usuario']) || ($_SESSION['rol'] ?? '') !== 'Admin') {
 const POS_UPDATE_REPO = 'freedarwuin/POS-System-Pro';
 const POS_UPDATE_API_URL = 'https://api.github.com/repos/freedarwuin/POS-System-Pro/releases/latest';
 
-// Compatibilidad con PHP anterior a 8.0.
-if (!function_exists('str_contains')) {
-    function str_contains(string $haystack, string $needle): bool
-    {
-        return $needle === '' || strpos($haystack, $needle) !== false;
-    }
+// Compatibilidad independiente de str_contains, str_starts_with y str_ends_with.
+function posUpdateContains(string $haystack, string $needle): bool
+{
+    return $needle === '' || strpos($haystack, $needle) !== false;
 }
 
-if (!function_exists('str_starts_with')) {
-    function str_starts_with(string $haystack, string $needle): bool
-    {
-        return $needle === '' || strpos($haystack, $needle) === 0;
-    }
+function posUpdateStartsWith(string $haystack, string $needle): bool
+{
+    return $needle === '' || strpos($haystack, $needle) === 0;
 }
 
-if (!function_exists('str_ends_with')) {
-    function str_ends_with(string $haystack, string $needle): bool
-    {
-        if ($needle === '') {
-            return true;
-        }
-        $length = strlen($needle);
-        return substr($haystack, -$length) === $needle;
+function posUpdateEndsWith(string $haystack, string $needle): bool
+{
+    if ($needle === '') {
+        return true;
     }
+    $length = strlen($needle);
+    return $length <= strlen($haystack) && substr($haystack, -$length) === $needle;
 }
 
 $root = __DIR__;
@@ -71,17 +65,17 @@ function posUpdateSkip(string $relativePath): bool
     $path = str_replace('\\', '/', $relativePath);
     return $path === 'conexion.php'
         || $path === '.htaccess'
-        || str_starts_with($path, 'facturas_adjuntas/')
-        || str_starts_with($path, '.git/');
+        || posUpdateStartsWith($path, 'facturas_adjuntas/')
+        || posUpdateStartsWith($path, '.git/');
 }
 
 function posUpdateSafePath(string $relativePath): bool
 {
-    if ($relativePath === '' || str_contains($relativePath, "\0")) {
+    if ($relativePath === '' || posUpdateContains($relativePath, "\0")) {
         return false;
     }
     $path = str_replace('\\', '/', $relativePath);
-    if (str_starts_with($path, '/') || preg_match('/^[A-Za-z]:/', $path)) {
+    if (posUpdateStartsWith($path, '/') || preg_match('/^[A-Za-z]:/', $path)) {
         return false;
     }
     foreach (explode('/', $path) as $part) {
@@ -121,6 +115,8 @@ try {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['instalar'])) {
+    set_time_limit(300);
+
     if (!hash_equals((string) ($_SESSION['pos_update_csrf'] ?? ''), (string) ($_POST['csrf'] ?? ''))) {
         http_response_code(400);
         exit('Solicitud no válida. Recarga la página e inténtalo nuevamente.');
@@ -186,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['instalar'])) {
                     throw new RuntimeException('El ZIP tiene una estructura inesperada.');
                 }
                 $relative = implode('/', array_slice($parts, 1));
-                if ($relative === '' || str_ends_with($entry, '/') || posUpdateSkip($relative)) {
+                if ($relative === '' || posUpdateEndsWith($entry, '/') || posUpdateSkip($relative)) {
                     continue;
                 }
                 $stat = $zip->statIndex($i);
