@@ -9,6 +9,7 @@ function pos_sidebar_active(string $current_page, array $pages): string {
     return in_array($current_page, $pages, true) ? ' active' : '';
 }
 ?>
+<link rel="stylesheet" href="sidebar.css">
 
 <aside class="pos-sidebar">
     <h2>POS SYSTEM PRO</h2>
