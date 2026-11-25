@@ -1,0 +1,28 @@
+ALTER TABLE configuracion 
+ADD COLUMN direccion TEXT AFTER rif,
+ADD COLUMN mensaje_ticket VARCHAR(255) AFTER direccion;
+
+-- Insertamos valores por defecto si no existen para que la vista previa no salga vacía
+UPDATE configuracion 
+SET direccion = 'Calle San Jose. Los Bambucos, Sector el Rodeo, Ocumare del Tuy',
+    mensaje_ticket = '*** Gracias por su compra ***'
+WHERE id = 1;
+
+
+-- 1. Añadir campos a la tabla de configuración existente
+ALTER TABLE configuracion 
+ADD COLUMN impuesto_iva DECIMAL(5,2) DEFAULT 16.00,
+ADD COLUMN impuesto_igtf DECIMAL(5,2) DEFAULT 3.00,
+ADD COLUMN usar_iva TINYINT(1) DEFAULT 1,
+ADD COLUMN usar_igtf TINYINT(1) DEFAULT 0,
+ADD COLUMN telegram_token VARCHAR(255) DEFAULT NULL,
+ADD COLUMN telegram_chat_id VARCHAR(100) DEFAULT NULL;
+
+-- 2. Crear la tabla de Bitácora de Auditoría
+CREATE TABLE auditoria (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario VARCHAR(100) NOT NULL,
+    accion VARCHAR(255) NOT NULL,
+    detalles TEXT DEFAULT NULL,
+    fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
