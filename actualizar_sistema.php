@@ -13,6 +13,32 @@ if (empty($_SESSION['usuario']) || ($_SESSION['rol'] ?? '') !== 'Admin') {
 const POS_UPDATE_REPO = 'freedarwuin/POS-System-Pro';
 const POS_UPDATE_API_URL = 'https://api.github.com/repos/freedarwuin/POS-System-Pro/releases/latest';
 
+// Compatibilidad con PHP anterior a 8.0.
+if (!function_exists('str_contains')) {
+    function str_contains(string $haystack, string $needle): bool
+    {
+        return $needle === '' || strpos($haystack, $needle) !== false;
+    }
+}
+
+if (!function_exists('str_starts_with')) {
+    function str_starts_with(string $haystack, string $needle): bool
+    {
+        return $needle === '' || strpos($haystack, $needle) === 0;
+    }
+}
+
+if (!function_exists('str_ends_with')) {
+    function str_ends_with(string $haystack, string $needle): bool
+    {
+        if ($needle === '') {
+            return true;
+        }
+        $length = strlen($needle);
+        return substr($haystack, -$length) === $needle;
+    }
+}
+
 $root = __DIR__;
 $versionFile = $root . DIRECTORY_SEPARATOR . 'version.json';
 $localData = is_file($versionFile) ? json_decode((string) file_get_contents($versionFile), true) : null;
@@ -243,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['instalar'])) {
                 throw $installError;
             }
 
-            $message = 'Actualización instalada correctamente desde el release ' . $remoteData['tag'] . ' (versión ' . $remoteVersion . '). Se conservaron la conexión a la base de datos, .htaccess y los archivos adjuntos.';
+            $message = 'Actualización instalada correctamente desde el release ' . $remoteData['tag'] . ' (versión ' . $remoteVersion . '). Se conservaron la conexión a la base de datos, .htaccess y los datos de facturas_adjuntas.';
             $messageType = 'success';
             $localVersion = $remoteVersion;
         } finally {
@@ -285,7 +311,7 @@ $releaseNotes = is_array($remoteData) ? (string) ($remoteData['release_notes'] ?
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Actualizaciones | POS System Pro</title>
     <style>
-        body{font-family:Arial,sans-serif;background:#f5f6fa;color:#202633;margin:0;padding:24px}.card{max-width:680px;margin:6vh auto;background:#fff;padding:30px;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08)}h1{margin-top:0}.muted{color:#667085}.status{padding:14px 16px;border-radius:10px;background:#edf5ff;margin:16px 0;border-left:4px solid #2f73cc}.status.success{background:#edf9f0;border-left-color:#25844a}.status.error{background:#fff1f1;border-left-color:#c62f2f}.warning{padding:12px 14px;border-radius:8px;background:#fff8e5}.button{border:0;border-radius:8px;padding:12px 18px;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer}.button:hover{background:#1d4ed8}
+        body{font-family:Arial,sans-serif;background:#f5f6fa;color:#202633;margin:0;padding:24px}.card{max-width:680px;margin:6vh auto;background:#fff;padding:30px;border-radius:16px;box-shadow:0 14px 40px rgba(31,41,55,.08)}h1{margin-top:0}.status{padding:14px;border-radius:10px;background:#eef4ff;border:1px solid #cbdcff}.status.success{background:#ecfdf3;border-color:#b7e4c7}.status.error{background:#fff1f0;border-color:#ffc9c5}.muted{color:#667085}.warning{padding:14px;border-radius:10px;background:#fff8e1;border:1px solid #ead58b}.button{display:inline-block;border:0;border-radius:8px;padding:12px 18px;background:#2563eb;color:#fff;font-weight:bold;cursor:pointer}
     </style>
 </head>
 <body>
