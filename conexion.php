@@ -1,7 +1,7 @@
 <?php
 $host = "localhost";
 $user = "root";     // Usuario por defecto
-$pass = "27283989";         // Contraseña por defecto (vacía)
+$pass = "";         // Contraseña por defecto (vacía)
 $db   = "puntodeventa"; // CAMBIA ESTO por el nombre que le diste en phpMyAdmin
 
 $conexion = mysqli_connect($host, $user, $pass, $db);
