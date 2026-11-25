@@ -165,23 +165,7 @@ $res_metodos = mysqli_query($conexion, "SELECT * FROM metodos_pago ORDER BY id A
 </head>
 <body>
 
-<aside class="sidebar">
-    <h2>POS SYSTEM PRO</h2>
-    <nav>
-        <a href="ventas.php" class="nav-link">🛒 Ventas</a>
-        <a href="inventario.php" class="nav-link">📦 Inventario</a>
-        <a href="corte.php" class="nav-link">📊 Corte</a>
-        <a href="estadisticas.php" class="nav-link">📊 Estadisticas</a>
-        <a href="historial.php" class="nav-link">📋 HISTORIAL</a>
-        <a href="historial_facturas.php" class="nav-link">📋 FACTURAS</a>
-        <a href="proveedores.php" class="nav-link">🚚 Proveedores</a>
-        <a href="modulo_reporte_stock.php" class="nav-link">📋 Reporte_stock</a>
-        <a href="creditos.php" class="nav-link">💳 Créditos</a>
-        <a href="mercancia_departamentos.php" class="nav-link">📁 Departamentos</a>
-        <a href="configuracion.php" class="nav-link active">⚙️ Ajustes</a>
-        <a href="logout.php" class="nav-link salir">🚪 Salir</a>
-    </nav>
-</aside>
+<?php include_once __DIR__ . '/sidebar.php'; ?>
 
 <main class="main-content">
     <div class="header">
