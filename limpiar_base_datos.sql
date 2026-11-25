@@ -1,5 +1,5 @@
 -- Limpia los datos operativos de la base puntodeventa.
--- Conserva las tablas y datos de: configuracion, metodos_pago y usuarios.
+-- Conserva las tablas y datos de: configuracion, metodos_pago, usuarios y licencia.
 -- IMPORTANTE: DELETE elimina permanentemente los registros; AUTO_INCREMENT se reinicia al final.
 -- Haz un respaldo antes de ejecutar este script.
 
@@ -27,7 +27,6 @@ DELETE FROM `historial_abonos`;
 DELETE FROM `historial_movimientos`;
 DELETE FROM `historial_pagomovil`;
 DELETE FROM `historial_stock`;
-DELETE FROM `licencia`;
 DELETE FROM `pagos_credito`;
 DELETE FROM `pagos_ventas`;
 DELETE FROM `productos`;
@@ -57,7 +56,6 @@ ALTER TABLE `historial_abonos` AUTO_INCREMENT = 1;
 ALTER TABLE `historial_movimientos` AUTO_INCREMENT = 1;
 ALTER TABLE `historial_pagomovil` AUTO_INCREMENT = 1;
 ALTER TABLE `historial_stock` AUTO_INCREMENT = 1;
-ALTER TABLE `licencia` AUTO_INCREMENT = 1;
 ALTER TABLE `pagos_credito` AUTO_INCREMENT = 1;
 ALTER TABLE `pagos_ventas` AUTO_INCREMENT = 1;
 ALTER TABLE `productos` AUTO_INCREMENT = 1;
