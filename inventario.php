@@ -764,5 +764,4 @@ $productos = mysqli_query($conexion, "SELECT p.*, d.nombre as nombre_depto
         }
     </script>
 </body>
-    </body>
 </html>
