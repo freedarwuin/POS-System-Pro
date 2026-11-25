@@ -1,47 +1,42 @@
 # POS-System-Pro
 
-Sistema de punto de venta desarrollado en PHP y MySQL para gestionar ventas, inventario, facturación, proveedores, créditos y reportes.
+**POS-System-Pro** es una plataforma web de punto de venta desarrollada en PHP y MySQL. Permite administrar ventas, inventario, facturación, proveedores, créditos, caja, usuarios y reportes desde una interfaz adaptable a equipos de escritorio y dispositivos móviles.
 
-**Versión estable:** 1.0.0  
-**Release:** <https://github.com/freedarwuin/POS-System-Pro/releases/tag/v1.0.0>
+[![Versión](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/freedarwuin/POS-System-Pro/releases/tag/v1.0.0)
+[![PHP](https://img.shields.io/badge/PHP-7.3%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
 
-## Características
+## Funcionalidades
 
-- Inicio de sesión y control de usuarios con roles.
-- Gestión de permisos por módulo.
+- Inicio de sesión con roles y permisos por módulo.
 - Punto de venta para escritorio y dispositivos móviles.
-- Inventario con productos por unidad, paquete o granel.
-- Departamentos y proveedores.
-- Facturación e impresión de tickets.
-- Gestión de clientes y ventas a crédito.
+- Productos por unidad, paquete o granel.
+- Control de inventario, departamentos, proveedores y compras.
+- Facturación, impresión de tickets y comprobantes.
+- Clientes, ventas a crédito y registro de abonos.
 - Apertura y cierre de caja por turnos.
 - Reportes de ventas, inventario y movimientos.
-- Métodos de pago configurables.
-- Configuración de tasa de cambio, IVA e IGTF.
-- Pago móvil, punto de venta, efectivo, divisas y otros métodos.
-- Respaldo de base de datos y limpieza del sistema.
-- Validación y bloqueo por estado o vencimiento de licencia.
-- Registro de auditoría y movimientos de inventario.
-- Comprobación de nuevas versiones mediante GitHub Releases.
-- Modal de actualización después del inicio de sesión para administradores.
+- Métodos de pago configurables, incluidos efectivo, divisas y pago móvil.
+- Configuración de IVA, IGTF y tasa de cambio.
+- Respaldo y limpieza de la base de datos.
+- Validación de licencia y registro de auditoría.
+- Comprobación de actualizaciones mediante GitHub Releases.
 
 ## Tecnologías
 
 - PHP 7.3 o posterior
-- MySQL 8.0 / MariaDB compatible
+- MySQL 5.7+, MySQL 8.0 o MariaDB compatible
 - HTML5, CSS3 y JavaScript
-- Extensión `mysqli`
-- Extensión `ZipArchive`
-- GitHub Releases y GitHub API
+- Extensión PHP `mysqli`
+- Extensión PHP `ZipArchive`
 
 ## Requisitos
 
 - Servidor web Apache o compatible.
-- PHP 7.3 o posterior.
-- Extensiones `mysqli` y `ZipArchive` habilitadas.
-- MySQL 5.7+ o MySQL 8.0.
-- Permisos de escritura sobre los archivos que vaya a reemplazar el actualizador.
-- Conexión HTTPS válida hacia GitHub desde el servidor.
+- PHP 7.3 o posterior con `mysqli` y `ZipArchive` habilitados.
+- MySQL 5.7+ o MariaDB compatible.
+- Permisos de escritura para el actualizador del sistema.
+- Conexión HTTPS válida hacia GitHub.
 - Navegador web actualizado.
 
 ## Instalación
@@ -53,7 +48,7 @@ git clone https://github.com/freedarwuin/POS-System-Pro.git
 cd POS-System-Pro
 ```
 
-También puede descargarse desde la página de [releases](https://github.com/freedarwuin/POS-System-Pro/releases) y colocarse dentro de la carpeta pública del servidor:
+También puedes descargar el archivo de la [última versión estable](https://github.com/freedarwuin/POS-System-Pro/releases/latest) y colocar el proyecto en la carpeta pública del servidor:
 
 - XAMPP: `htdocs/POS-System-Pro`
 - WAMP: `www/POS-System-Pro`
@@ -61,11 +56,11 @@ También puede descargarse desde la página de [releases](https://github.com/fre
 
 ### 2. Crear la base de datos
 
-1. Accede a phpMyAdmin.
+1. Accede a phpMyAdmin o utiliza tu cliente MySQL.
 2. Crea una base de datos llamada `puntodeventa`.
-3. Importa `puntodeventa.sql` desde la pestaña **Importar**.
+3. Importa el archivo `puntodeventa.sql`.
 
-Desde la terminal:
+Desde una terminal:
 
 ```bash
 mysql -u root -p -e "CREATE DATABASE puntodeventa CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
@@ -74,7 +69,7 @@ mysql -u root -p puntodeventa < puntodeventa.sql
 
 ### 3. Configurar la conexión
 
-Edita [`conexion.php`](conexion.php) con las credenciales de MySQL:
+Edita [`conexion.php`](conexion.php) con las credenciales de tu instalación:
 
 ```php
 <?php
@@ -91,61 +86,51 @@ if (!$conexion) {
 ?>
 ```
 
-No publique usuarios, contraseñas ni datos sensibles en repositorios públicos.
+No publiques credenciales reales ni datos sensibles en un repositorio público.
 
-### 4. Ejecutar el sistema
+### 4. Iniciar el sistema
 
-Inicie Apache y MySQL y abra:
+Inicia Apache y MySQL y abre:
 
 ```text
 http://localhost/POS-System-Pro/
 ```
 
-[`index.php`](index.php) redirige a la pantalla de inicio de sesión.
+El archivo [`index.php`](index.php) redirige a la pantalla de inicio de sesión.
 
-## Actualizaciones
+## Actualización del sistema
 
-El sistema utiliza el último GitHub Release estable para detectar y descargar actualizaciones.
+El actualizador consulta el último release estable publicado en GitHub y compara su etiqueta con la versión localizada en [`version.json`](version.json).
 
-### Comprobación después del inicio de sesión
+Después de iniciar sesión como administrador, el sistema puede mostrar una ventana modal cuando exista una versión nueva. Desde esta ventana puedes actualizar o continuar más tarde.
 
-Después de autenticarse, un administrador puede recibir una ventana modal si existe una versión superior a la instalada:
-
-- **Actualizar:** abre [`actualizar_sistema.php`](actualizar_sistema.php).
-- **Más tarde:** continúa a la pantalla principal.
-
-La comprobación se realiza en [`comprobar_actualizacion.php`](comprobar_actualizacion.php). Los usuarios con rol Cajero o cualquier otro rol no reciben el aviso de actualización y continúan directamente a su destino habitual.
-
-### Instalación manual
-
-La página [`actualizar_sistema.php`](actualizar_sistema.php) está disponible únicamente para administradores:
+También puedes abrir manualmente:
 
 ```text
 http://localhost/POS-System-Pro/actualizar_sistema.php
 ```
 
-Al instalar una actualización:
+El proceso descarga el ZIP correspondiente al tag publicado, valida sus rutas, crea copias temporales de los archivos reemplazados y permite revertir cambios si ocurre un error.
 
-1. Consulta el último Release estable mediante la API de GitHub.
-2. Comprueba que el tag tenga una versión válida.
-3. Compara el tag con `version` en [`version.json`](version.json).
-4. Descarga el ZIP asociado exactamente al tag publicado.
-5. Valida las rutas del contenido ZIP.
-6. Crea respaldos temporales de los archivos reemplazados.
-7. Instala los archivos nuevos y revierte los cambios si ocurre un error.
-
-La actualización conserva:
+El actualizador conserva:
 
 - `conexion.php`
 - `.htaccess`
 - `facturas_adjuntas/`
 
-### Publicar una nueva versión
+> El actualizador reemplaza archivos del proyecto, pero no ejecuta migraciones de MySQL automáticamente.
 
-Para publicar una actualización:
+Antes de actualizar:
+
+1. Genera un respaldo desde **Configuración > Respaldo estructurado**.
+2. Conserva una copia de `conexion.php`, `.htaccess` y `facturas_adjuntas/`.
+3. Revisa manualmente las migraciones de base de datos de la nueva versión.
+4. Evita operaciones críticas durante la actualización.
+
+## Publicar una nueva versión
 
 1. Prepara y prueba los cambios en la rama `main`.
-2. Actualiza [`version.json`](version.json) con la nueva versión:
+2. Actualiza [`version.json`](version.json):
 
 ```json
 {
@@ -155,44 +140,27 @@ Para publicar una actualización:
 }
 ```
 
-3. Confirma el archivo actualizado en `main`.
-4. Crea un Release estable con un tag correspondiente:
+3. Confirma los cambios en `main`.
+4. Crea un GitHub Release estable con una etiqueta que coincida:
 
 ```text
 Tag: v1.1.0
 Título: v1.1.0
-Estado: estable
+Estado: Release estable
 ```
 
-El actualizador obtendrá `v1.1.0` desde el último Release y descargará el código de ese mismo tag:
+El actualizador utiliza `/releases/latest` y descarga el archivo ZIP del mismo tag. No marques la versión como prerelease si debe detectarse como actualización estable.
 
-```text
-https://codeload.github.com/freedarwuin/POS-System-Pro/zip/refs/tags/v1.1.0
-```
+## Módulos principales
 
-> No publiques prereleases si deseas que sean reconocidas como actualizaciones estables. El actualizador usa el endpoint `/releases/latest`.
-
-### Respaldos y migraciones
-
-Antes de actualizar:
-
-- Descarga un respaldo desde **Configuración > Respaldo estructurado**.
-- Conserva una copia de `conexion.php`, `.htaccess` y `facturas_adjuntas/`.
-- Detén temporalmente operaciones críticas si varios usuarios usan el sistema.
-- Respaldos y migraciones de la base de datos deben verificarse antes de instalar.
-
-El actualizador reemplaza archivos del proyecto, pero **no ejecuta migraciones MySQL automáticamente**.
-
-## Funcionalidades principales
-
-| Área | Archivos relacionados |
+| Área | Archivos principales |
 | --- | --- |
-| Acceso | `login.php`, `validar.php`, `logout.php`, `comprobar_actualizacion.php` |
-| Punto de venta | `ventas.php`, `ventas_movil.php`, `procesar_venta_multiple.php` |
+| Acceso | `login.php`, `validar.php`, `logout.php` |
+| Punto de venta | `ventas.php`, `ventas_movil.php`, `procesar_venta.php`, `procesar_venta_multiple.php` |
 | Inventario | `inventario.php`, `guardar_producto.php`, `editar_producto.php`, `eliminar_producto.php` |
-| Facturas | `facturas.php`, `historial_facturas.php`, `imprimir_factura.php` |
-| Compras y proveedores | `nueva_compra.php`, `proveedores.php`, `procesar_compra.php`, `procesar_proveedor.php` |
-| Créditos | `creditos.php`, `historial.php`, `ver_pagos.php` |
+| Facturación | `facturas.php`, `historial_facturas.php`, `imprimir_factura.php`, `imprimir_ticket.php` |
+| Compras | `nueva_compra.php`, `procesar_compra.php`, `procesar_proveedor.php`, `proveedores.php` |
+| Créditos | `creditos.php`, `historial.php`, `ver_pagos.php`, `imprimir_abono.php` |
 | Caja | `corte.php`, `procesar_apertura.php`, `procesar_turno.php`, `chequear_caja.php` |
 | Usuarios | `gestion_usuarios.php`, `actualizar_permisos.php` |
 | Reportes | `estadisticas.php`, `reporte_ventas.php`, `reporte_inventario.php`, `resumen_ventas.php` |
@@ -201,45 +169,20 @@ El actualizador reemplaza archivos del proyecto, pero **no ejecuta migraciones M
 | Base de datos | `respaldo_db.php`, `limpiar_sistema.php`, `limpiar_base_datos.sql` |
 | Licencia | `validar_licencia.php`, `licencia_bloqueada.php`, `licencia_error.php` |
 
-## Estructura general
-
-```text
-POS-System-Pro/
-├── Imagenes/
-├── facturas_adjuntas/
-├── conexion.php
-├── index.php
-├── login.php
-├── validar.php
-├── comprobar_actualizacion.php
-├── ventas.php
-├── ventas_movil.php
-├── inventario.php
-├── facturas.php
-├── proveedores.php
-├── creditos.php
-├── corte.php
-├── configuracion.php
-├── actualizar_sistema.php
-├── puntodeventa.sql
-├── respaldo_db.php
-└── version.json
-```
-
 ## Seguridad
 
-Antes de usar el sistema en producción:
+Antes de utilizar el sistema en producción:
 
 - Cambia todas las credenciales predeterminadas.
 - Protege `conexion.php` y otros archivos sensibles.
-- Usa contraseñas cifradas mediante `password_hash()` y `password_verify()`.
-- Valida y sanitiza todas las entradas de usuario.
-- Configura HTTPS y permisos adecuados en el servidor.
-- Limita la instalación de actualizaciones a administradores.
-- Realiza copias de seguridad periódicas antes de actualizar.
-- Verifica que el hosting permita escritura únicamente sobre las rutas necesarias.
+- Usa contraseñas cifradas con `password_hash()` y `password_verify()`.
+- Valida y sanitiza todas las entradas del usuario.
+- Configura HTTPS y permisos mínimos en el servidor.
+- Restringe las actualizaciones a usuarios administradores.
+- Realiza copias de seguridad periódicas.
+- Permite escritura únicamente sobre las rutas requeridas por el actualizador.
 
-## Desarrollo
+## Desarrollo local
 
 ```bash
 git clone https://github.com/freedarwuin/POS-System-Pro.git
@@ -247,7 +190,7 @@ cd POS-System-Pro
 php -S localhost:8000
 ```
 
-Luego abra `http://localhost:8000/`. Para producción se recomienda Apache o un entorno de hosting adecuado.
+Abre `http://localhost:8000/` en el navegador. Para producción se recomienda Apache o un entorno de hosting adecuado.
 
 ## Contribuciones
 
@@ -258,9 +201,10 @@ Luego abra `http://localhost:8000/`. Para producción se recomienda Apache o un 
 git checkout -b feature/nueva-funcionalidad
 ```
 
-3. Realiza los cambios y confirma:
+3. Realiza y confirma los cambios:
 
 ```bash
+git add .
 git commit -m "Agrega nueva funcionalidad"
 ```
 
@@ -270,11 +214,11 @@ git commit -m "Agrega nueva funcionalidad"
 git push origin feature/nueva-funcionalidad
 ```
 
-5. Abre un Pull Request.
+5. Abre un Pull Request hacia `main`.
 
 ## Autor
 
 **freedarwuin**
 
-Repositorio: <https://github.com/freedarwuin/POS-System-Pro>  
-Releases: <https://github.com/freedarwuin/POS-System-Pro/releases>
+- Repositorio: <https://github.com/freedarwuin/POS-System-Pro>
+- Releases: <https://github.com/freedarwuin/POS-System-Pro/releases>
