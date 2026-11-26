@@ -7,7 +7,7 @@ if (empty($_SESSION['usuario']) || ($_SESSION['rol'] ?? '') !== 'Admin') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: plan_respaldos.php');
+    header('Location: configuracion.php#plan-respaldos');
     exit();
 }
 
@@ -47,5 +47,5 @@ try {
     $_SESSION['mensaje_plan_respaldo'] = 'No se pudo guardar el plan. Revisa el registro de errores del servidor.';
 }
 
-header('Location: plan_respaldos.php');
+header('Location: configuracion.php#plan-respaldos');
 exit();

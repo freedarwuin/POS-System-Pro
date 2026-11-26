@@ -40,15 +40,29 @@ function pos_sidebar_link(string $current_page, array $pages, string $href, stri
         <?php pos_sidebar_link($current_page, ['mercancia_departamentos.php'], 'mercancia_departamentos.php', '📁', 'Departamentos'); ?>
         <?php pos_sidebar_link($current_page, ['gestion_usuarios.php'], 'gestion_usuarios.php', '👥', 'Usuarios'); ?>
         <?php pos_sidebar_link($current_page, ['configuracion.php'], 'configuracion.php', '⚙️', 'Ajustes'); ?>
-        <?php if (($_SESSION['rol'] ?? '') === 'Admin'): ?>
-            <?php pos_sidebar_link($current_page, ['plan_respaldos.php'], 'plan_respaldos.php', '💾', 'Plan de respaldos'); ?>
-        <?php endif; ?>
         <a href="logout.php" class="pos-sidebar__link pos-sidebar__logout">
             <span class="pos-sidebar__icon" aria-hidden="true">🚪</span><span>Salir</span>
         </a>
     </nav>
 </aside>
 
+<?php
+// Integrar el plan en la tarjeta de respaldo existente, solo en Configuración.
+if ($current_page === 'configuracion.php' && ($_SESSION['rol'] ?? '') === 'Admin') {
+    require_once __DIR__ . '/conexion.php';
+    require_once __DIR__ . '/plan_respaldos_helper.php';
+    try {
+        $plan_respaldo_panel = posObtenerPlanRespaldos($conexion);
+        if (empty($_SESSION['csrf_plan_respaldo'])) {
+            $_SESSION['csrf_plan_respaldo'] = bin2hex(random_bytes(32));
+        }
+        require __DIR__ . '/plan_respaldos_panel.php';
+    } catch (Throwable $e) {
+        error_log('[plan_respaldos_panel] ' . $e->getMessage());
+        echo '<div role="alert" style="margin:12px;padding:12px;border-radius:10px;background:#fef2f2;color:#7f1d1d">No se pudo cargar el recordatorio de respaldos. Revisa el registro de errores del servidor.</div>';
+    }
+}
+?>
 <script>
 (() => {
     const sidebar = document.getElementById('pos-sidebar');
