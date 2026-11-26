@@ -24,11 +24,13 @@
 - Validación de licencia y registro de auditoría.
 - Actualizaciones desde GitHub Releases con instalador integrado.
 - Navegación lateral responsive compartida entre los módulos.
+- Instalación automática en Raspberry Pi OS y Debian.
 
 ## Tecnologías
 
 - PHP 7.3 o posterior
 - MySQL 5.7+, MySQL 8.0 o MariaDB compatible
+- Apache2
 - HTML5, CSS3 y JavaScript
 - Extensión PHP `mysqli`
 - Extensión PHP `ZipArchive`
@@ -43,10 +45,53 @@
 - Permisos de escritura para el actualizador del sistema.
 - Conexión HTTPS válida hacia GitHub para comprobar releases.
 - Navegador web actualizado.
+- Para el instalador automático: Raspberry Pi OS o Debian con `apt-get`, privilegios de administrador y conexión a Internet.
 
 ## Instalación
 
-### 1. Obtener el proyecto
+### Instalación automática en Raspberry Pi OS o Debian
+
+El script [`instalador.sh`](instalador.sh) instala Apache, PHP, MariaDB, las extensiones necesarias y configura una instalación completa del sistema.
+
+Antes de ejecutar el instalador:
+
+- El directorio `/var/www/html/POS-System-Pro` no debe existir.
+- La base de datos `puntodeventa` no debe existir.
+- Se necesita acceso a Internet y ejecución como administrador.
+- El repositorio debe ser accesible con el token indicado por el script.
+
+Ejecuta:
+
+```bash
+git clone https://github.com/freedarwuin/POS-System-Pro.git
+cd POS-System-Pro
+sudo bash instalador.sh
+```
+
+Si el repositorio es privado, el script solicitará de forma segura un token de GitHub con permiso de lectura del contenido. El instalador realizará las siguientes acciones:
+
+1. Instala Apache, PHP, MariaDB y las extensiones requeridas.
+2. Descarga el código desde la rama `main`.
+3. Extrae el proyecto en `/var/www/html/POS-System-Pro`.
+4. Crea la base de datos `puntodeventa`.
+5. Importa automáticamente `puntodeventa.sql`.
+6. Crea el usuario limitado `pos_app` y configura [`conexion.php`](conexion.php).
+7. Ajusta los permisos de Apache para el directorio de la aplicación.
+8. Habilita e inicia Apache y MariaDB.
+
+Al finalizar, accede a la dirección que muestra el propio script:
+
+```text
+http://<IP-Raspberry-Pi>/POS-System-Pro/
+```
+
+> El usuario y la contraseña de MariaDB configurados por el script son `pos_app` y `p0o9i8u7`. Cámbialos antes de exponer el servidor a una red no confiable.
+
+> El instalador no sobrescribe una instalación existente ni una base de datos `puntodeventa` que ya exista. Haz una copia de seguridad antes de repetir la instalación.
+
+### Instalación manual
+
+#### 1. Obtener el proyecto
 
 ```bash
 git clone https://github.com/freedarwuin/POS-System-Pro.git
@@ -59,7 +104,7 @@ También puedes descargar el archivo de la [última versión estable](https://gi
 - WAMP: `www/POS-System-Pro`
 - Apache/Linux: `/var/www/html/POS-System-Pro`
 
-### 2. Crear la base de datos
+#### 2. Crear la base de datos
 
 1. Accede a phpMyAdmin o utiliza tu cliente MySQL.
 2. Crea una base de datos llamada `puntodeventa`.
@@ -68,11 +113,11 @@ También puedes descargar el archivo de la [última versión estable](https://gi
 Desde una terminal:
 
 ```bash
-mysql -u root -p -e "CREATE DATABASE puntodeventa CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
+mysql -u root -p -e "CREATE DATABASE puntodeventa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql -u root -p puntodeventa < puntodeventa.sql
 ```
 
-### 3. Configurar la conexión
+#### 3. Configurar la conexión
 
 Edita [`conexion.php`](conexion.php) con las credenciales de tu instalación:
 
@@ -92,7 +137,7 @@ if (!$conexion) {
 
 No publiques credenciales reales ni datos sensibles en un repositorio público.
 
-### 4. Iniciar el sistema
+#### 4. Iniciar el sistema
 
 Inicia Apache y MySQL y abre:
 
@@ -138,6 +183,7 @@ Después abre `http://localhost:8000/`.
 | Actualizaciones | `comprobar_actualizacion.php`, `actualizar_sistema.php`, `version.json` |
 | Navegación | `sidebar.php`, `sidebar.css` |
 | Base de datos | `respaldo_db.php`, `limpiar_sistema.php`, `limpiar_base_datos.sql`, `puntodeventa.sql` |
+| Instalación Linux | `instalador.sh` |
 
 ## Base de datos
 
@@ -151,7 +197,7 @@ El archivo [`puntodeventa.sql`](puntodeventa.sql) contiene la estructura inicial
 - Usuarios, permisos, licencia y auditoría.
 - Configuración fiscal, comercial y de Pago Móvil.
 
-Para dejar una instalación preparada sin registros operativos, revisa primero el contenido de [`limpiar_base_datos.sql`](limpiar_base_datos.sql). El script conserva las tablas de configuración, métodos de pago, usuarios y licencia, pero elimina datos operativos permanentemente.
+Para dejar una instalación preparada sin registros operativos, revisa primero el contenido de [`limpiar_base_datos.sql`](limpiar_base_datos.sql). El script conserva las tablas de configuración, elimina datos transaccionales y restablece usuarios operativos según su diseño.
 
 > Haz siempre una copia de seguridad antes de ejecutar scripts SQL de limpieza o restauración.
 
@@ -167,7 +213,7 @@ La versión instalada se consulta desde [`version.json`](version.json):
 }
 ```
 
-Después de iniciar sesión como administrador, [`comprobar_actualizacion.php`](comprobar_actualizacion.php) consulta el último release estable publicado en GitHub. Si hay una versión nueva, permite continuar hacia [`actualizar_sistema.php`](actualizar_sistema.php).
+Después de iniciar sesión como administrador, [`comprobar_actualizacion.php`](comprobar_actualizacion.php) consulta el último release estable publicado en GitHub. Si hay una versión nueva, permite descargar e instalar el paquete desde el propio sistema.
 
 El actualizador:
 
@@ -185,6 +231,14 @@ El actualizador:
 2. Conserva una copia de `conexion.php`, `.htaccess` y `facturas_adjuntas/`.
 3. Revisa manualmente las migraciones de base de datos incluidas en la nueva versión.
 4. Evita operaciones críticas durante la actualización.
+
+## Cambios recientes
+
+- **Raspberry Pi / Debian:** se agregó `instalador.sh` para instalar Apache, PHP y MariaDB automáticamente.
+- **Base de datos:** el instalador crea `puntodeventa`, importa `puntodeventa.sql` y convierte la collation exportada por MySQL 8 a una compatible con MariaDB.
+- **Conexión segura:** el instalador crea el usuario limitado `pos_app` y genera automáticamente [`conexion.php`](conexion.php).
+- **Permisos:** los archivos pasan a propiedad de `www-data` con directorios en `755` y archivos en `644`, sin usar permisos globales `777`.
+- **Navegación:** la barra lateral compartida es responsive y coincide en escritorio y móvil entre los módulos.
 
 ## Publicar una nueva versión
 
@@ -213,6 +267,7 @@ Antes de utilizar el sistema en producción:
 - Restringe las actualizaciones a usuarios administradores.
 - Realiza copias de seguridad periódicas.
 - Permite escritura únicamente sobre las rutas requeridas por el actualizador.
+- Cambia la contraseña fija creada por el instalador de Raspberry Pi antes de exponer el servicio.
 
 ## Contribuciones
 
