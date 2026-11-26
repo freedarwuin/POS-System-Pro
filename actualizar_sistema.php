@@ -1,7 +1,7 @@
 <?php
 /**
  * Actualizador manual del POS. Requiere una sesión de administrador.
- * Conserva conexion.php, .htaccess y los datos de facturas_adjuntas.
+ * Conserva conexion.php, .htaccess, los datos de facturas_adjuntas y android-app.
  */
 session_start();
 
@@ -66,6 +66,8 @@ function posUpdateSkip(string $relativePath): bool
     return $path === 'conexion.php'
         || $path === '.htaccess'
         || posUpdateStartsWith($path, 'facturas_adjuntas/')
+        || $path === 'android-app'
+        || posUpdateStartsWith($path, 'android-app/')
         || posUpdateStartsWith($path, '.git/');
 }
 
@@ -265,7 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['instalar'])) {
                 throw $installError;
             }
 
-            $message = 'Actualización instalada correctamente desde el release ' . $remoteData['tag'] . ' (versión ' . $remoteVersion . '). Se conservaron la conexión a la base de datos, .htaccess y los datos de facturas_adjuntas.';
+            $message = 'Actualización instalada correctamente desde el release ' . $remoteData['tag'] . ' (versión ' . $remoteVersion . '). Se conservaron la conexión a la base de datos, .htaccess, facturas_adjuntas y android-app.';
             $messageType = 'success';
             $localVersion = $remoteVersion;
         } finally {
@@ -338,7 +340,7 @@ $releaseNotes = is_array($remoteData) ? (string) ($remoteData['release_notes'] ?
     <?php else: ?>
         <div class="status">Tu sistema está actualizado<?= is_array($remoteData) ? ' (release ' . htmlspecialchars((string) ($remoteData['tag'] ?? ''), ENT_QUOTES, 'UTF-8') . ')' : '' ?>.</div>
     <?php endif; ?>
-    <p class="warning"><strong>Antes de continuar:</strong> realiza un respaldo de la base de datos y de los archivos del servidor. La actualización reemplaza los archivos de la aplicación, pero conserva la conexión a la base de datos, .htaccess y los datos de facturas_adjuntas.</p>
+    <p class="warning"><strong>Antes de continuar:</strong> realiza un respaldo de la base de datos y de los archivos del servidor. La actualización reemplaza los archivos de la aplicación, pero conserva la conexión, .htaccess, facturas_adjuntas y android-app.</p>
     <?php if ($available): ?>
         <form method="post" onsubmit="return confirm('¿Instalar la actualización desde el último release estable? Asegúrate de tener un respaldo reciente de archivos y base de datos.');">
             <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['pos_update_csrf'], ENT_QUOTES, 'UTF-8') ?>">
