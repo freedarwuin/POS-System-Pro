@@ -1,8 +1,8 @@
 <?php
 $host = "localhost";
-$user = "root";     // Usuario por defecto
-$pass = "";         // Contraseña por defecto (vacía)
-$db   = "puntodeventa"; // CAMBIA ESTO por el nombre que le diste en phpMyAdmin
+$user = "pos_app";
+$pass = "p0o9i8u7";
+$db   = "puntodeventa";
 
 $conexion = mysqli_connect($host, $user, $pass, $db);
 
