@@ -1,8 +1,8 @@
 # POS-System-Pro
 
-**POS-System-Pro** es una plataforma web de punto de venta desarrollada en PHP y MySQL. Permite administrar ventas, inventario, facturación, proveedores, créditos, caja, usuarios y reportes desde una interfaz adaptable para escritorio y dispositivos móviles.
+**POS-System-Pro** es una plataforma web de punto de venta desarrollada en PHP y MySQL. Permite administrar ventas, inventario, facturación, proveedores, créditos, caja, usuarios y reportes desde una interfaz web responsive.
 
-[![Versión](https://img.shields.io/badge/version-1.1.2-blue)](https://github.com/freedarwuin/POS-System-Pro/releases/tag/v1.1.2)
+[![Versión](https://img.shields.io/badge/version-1.1.4-blue)](https://github.com/freedarwuin/POS-System-Pro/releases/tag/v1.1.4)
 [![PHP](https://img.shields.io/badge/PHP-7.3%2B-777BB4?logo=php&logoColor=white)](https://www.php.net/)
 [![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
 
@@ -197,7 +197,7 @@ El archivo [`puntodeventa.sql`](puntodeventa.sql) contiene la estructura inicial
 - Usuarios, permisos, licencia y auditoría.
 - Configuración fiscal, comercial y de Pago Móvil.
 
-Para dejar una instalación preparada sin registros operativos, revisa primero el contenido de [`limpiar_base_datos.sql`](limpiar_base_datos.sql). El script conserva las tablas de configuración, elimina datos transaccionales y restablece usuarios operativos según su diseño.
+Para dejar una instalación preparada sin registros operativos, revisa primero el contenido de [`limpiar_base_datos.sql`](limpiar_base_datos.sql). El script conserva las tablas de configuración, usuarios, licencia y métodos de pago según su diseño.
 
 > Haz siempre una copia de seguridad antes de ejecutar scripts SQL de limpieza o restauración.
 
@@ -207,13 +207,13 @@ La versión instalada se consulta desde [`version.json`](version.json):
 
 ```json
 {
-  "version": "1.1.2",
+  "version": "1.1.4",
   "channel": "stable",
-  "last_updated": "2026-11-25"
+  "last_updated": "2026-11-26"
 }
 ```
 
-Después de iniciar sesión como administrador, [`comprobar_actualizacion.php`](comprobar_actualizacion.php) consulta el último release estable publicado en GitHub. Si hay una versión nueva, permite descargar e instalar el paquete desde el propio sistema.
+Después de iniciar sesión como administrador, [`comprobar_actualizacion.php`](comprobar_actualizacion.php) consulta el último release estable publicado en GitHub. Si hay una versión nueva, permite descargar e instalar el paquete correspondiente.
 
 El actualizador:
 
@@ -234,11 +234,23 @@ El actualizador:
 
 ## Cambios recientes
 
-- **Raspberry Pi / Debian:** se agregó `instalador.sh` para instalar Apache, PHP y MariaDB automáticamente.
-- **Base de datos:** el instalador crea `puntodeventa`, importa `puntodeventa.sql` y convierte la collation exportada por MySQL 8 a una compatible con MariaDB.
-- **Conexión segura:** el instalador crea el usuario limitado `pos_app` y genera automáticamente [`conexion.php`](conexion.php).
-- **Permisos:** los archivos pasan a propiedad de `www-data` con directorios en `755` y archivos en `644`, sin usar permisos globales `777`.
-- **Navegación:** la barra lateral compartida es responsive y coincide en escritorio y móvil entre los módulos.
+Actualizados con los últimos commits publicados en la rama `main`:
+
+- **Limpieza controlada de la base de datos:** se mejoró el script de limpieza operativa para una puesta a cero más segura.
+- **Versión 1.1.4:** se incrementó la versión estable y se actualizó la fecha de la configuración de actualización.
+- **Usuarios y configuración:** el enlace **Usuarios** de la barra lateral ahora abre el centro de configuración.
+- **Recordatorios de respaldo:** se evita duplicar el panel de recordatorios dentro de Configuración.
+- **Versión 1.1.3:** se incorporó la actualización anterior de versión estable.
+
+### Commits recientes
+
+- [`622c3dc`](https://github.com/freedarwuin/POS-System-Pro/commit/622c3dcc30dc559eefab7ce97431eeeececab55b) — Improve controlled database cleanup script — 26/11/2026
+- [`3a417ca`](https://github.com/freedarwuin/POS-System-Pro/commit/3a417caf9c8104e89db34730ce455dc64f07578e) — Increment version to 1.1.4 and update date — 26/11/2026
+- [`0fcc327`](https://github.com/freedarwuin/POS-System-Pro/commit/0fcc32785cea1743c85490abf5fbde15e685ffba) — Cambiar el enlace Usuarios para abrir Configuración — 26/11/2026
+- [`a430770`](https://github.com/freedarwuin/POS-System-Pro/commit/a430770a6cfcd58886ff32986095e3bacfd241cb) — Evita duplicar el panel de recordatorios en configuración — 26/11/2026
+- [`64e7f28`](https://github.com/freedarwuin/POS-System-Pro/commit/64e7f28ee901be1edce230bcfafb3fd409f89360) — Update version to 1.1.3 — 26/11/2026
+
+Consulta el historial completo en [Commits de `main`](https://github.com/freedarwuin/POS-System-Pro/commits/main).
 
 ## Publicar una nueva versión
 
@@ -248,8 +260,8 @@ El actualizador:
 4. Crea un GitHub Release estable con una etiqueta coincidente:
 
 ```text
-Tag: v1.1.3
-Título: v1.1.3
+Tag: v1.1.4
+Título: v1.1.4
 Estado: Release estable
 ```
 
