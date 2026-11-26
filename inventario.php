@@ -279,7 +279,7 @@ $productos = mysqli_query($conexion, "SELECT p.*, d.nombre as nombre_depto
     </style>
 </head>
 <body>
-
+<?php include_once __DIR__ . '/sidebar.php'; ?>
     <?php 
     function format_stock($value, $unidad) {
         $val = (float)$value;
