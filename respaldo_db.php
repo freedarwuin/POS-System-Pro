@@ -11,6 +11,15 @@ if (empty($_SESSION['usuario']) || ($_SESSION['rol'] ?? '') !== 'Admin') {
 }
 
 require_once __DIR__ . '/conexion.php';
+require_once __DIR__ . '/plan_respaldos_helper.php';
+
+try {
+    posAsegurarTablaPlanRespaldos($conexion);
+} catch (Throwable $e) {
+    error_log('[respaldo_db] ' . $e->getMessage());
+    http_response_code(500);
+    exit('No se pudo preparar el registro del plan de respaldos. Revisa el registro de errores del servidor.');
+}
 
 mysqli_set_charset($conexion, 'utf8mb4');
 
@@ -26,8 +35,6 @@ function respaldoDbError(string $mensaje): void
     exit('No se pudo generar el respaldo. Revisa el registro de errores del servidor.');
 }
 
-// Cargar primero los nombres y las estructuras para no iniciar una descarga
-// si la conexión no permite consultar las tablas.
 $resultadoTablas = mysqli_query($conexion, 'SHOW TABLES');
 if (!$resultadoTablas) {
     respaldoDbError(mysqli_error($conexion));
@@ -41,12 +48,10 @@ mysqli_free_result($resultadoTablas);
 
 $estructuras = [];
 foreach ($tablas as $tabla) {
-    $tablaSql = respaldoDbIdentificador($tabla);
-    $resultadoCreate = mysqli_query($conexion, 'SHOW CREATE TABLE ' . $tablaSql);
+    $resultadoCreate = mysqli_query($conexion, 'SHOW CREATE TABLE ' . respaldoDbIdentificador($tabla));
     if (!$resultadoCreate) {
         respaldoDbError(mysqli_error($conexion));
     }
-
     $filaCreate = mysqli_fetch_row($resultadoCreate);
     mysqli_free_result($resultadoCreate);
     if (!isset($filaCreate[1])) {
@@ -62,8 +67,6 @@ header('Content-Disposition: attachment; filename="' . $nombreArchivo . '"');
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 
-// Enviar el SQL progresivamente para evitar conservar el respaldo completo
-// en memoria cuando la base de datos tenga muchos registros.
 echo "-- Respaldo de base de datos - POS System Pro\n";
 echo '-- Generado: ' . date('Y-m-d H:i:s') . "\n\n";
 echo "SET NAMES utf8mb4;\n";
@@ -81,7 +84,6 @@ foreach ($tablas as $tabla) {
     }
     $campos = mysqli_fetch_fields($resultadoVacio);
     mysqli_free_result($resultadoVacio);
-
     if (!$campos) {
         continue;
     }
@@ -90,7 +92,6 @@ foreach ($tablas as $tabla) {
     foreach ($campos as $campo) {
         $nombresCampos[] = respaldoDbIdentificador($campo->name);
     }
-
     $resultadoDatos = mysqli_query($conexion, 'SELECT * FROM ' . $tablaSql, MYSQLI_USE_RESULT);
     if (!$resultadoDatos) {
         respaldoDbError(mysqli_error($conexion));
@@ -104,18 +105,20 @@ foreach ($tablas as $tabla) {
                 ? 'NULL'
                 : "'" . mysqli_real_escape_string($conexion, $valor) . "'";
         }
-
         echo 'INSERT INTO ' . $tablaSql . ' (' . $columnasSql . ') VALUES ('
             . implode(', ', $valoresSql) . ");\n";
     }
     mysqli_free_result($resultadoDatos);
     echo "\n";
-
     if (function_exists('ob_flush')) {
         @ob_flush();
     }
     flush();
 }
 
+// Solo se registra el respaldo después de haber generado toda la salida SQL.
+if (!mysqli_query($conexion, 'UPDATE plan_respaldos SET ultimo_respaldo = NOW() WHERE id = 1')) {
+    error_log('[respaldo_db] No se pudo registrar la fecha del respaldo: ' . mysqli_error($conexion));
+}
 echo "SET FOREIGN_KEY_CHECKS=1;\n";
 exit();

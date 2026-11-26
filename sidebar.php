@@ -41,7 +41,7 @@ function pos_sidebar_link(string $current_page, array $pages, string $href, stri
         <?php pos_sidebar_link($current_page, ['gestion_usuarios.php'], 'gestion_usuarios.php', '👥', 'Usuarios'); ?>
         <?php pos_sidebar_link($current_page, ['configuracion.php'], 'configuracion.php', '⚙️', 'Ajustes'); ?>
         <?php if (($_SESSION['rol'] ?? '') === 'Admin'): ?>
-            <?php pos_sidebar_link($current_page, ['respaldo_db.php'], 'respaldo_db.php', '💾', 'Respaldo SQL'); ?>
+            <?php pos_sidebar_link($current_page, ['plan_respaldos.php'], 'plan_respaldos.php', '💾', 'Plan de respaldos'); ?>
         <?php endif; ?>
         <a href="logout.php" class="pos-sidebar__link pos-sidebar__logout">
             <span class="pos-sidebar__icon" aria-hidden="true">🚪</span><span>Salir</span>

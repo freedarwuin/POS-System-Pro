@@ -102,6 +102,7 @@ mkdir -p "$APP_DIR"
 cp -a "$SOURCE_DIR"/. "$APP_DIR"/
 
 [[ -s "$APP_DIR/puntodeventa.sql" ]] || fail "No se encontró puntodeventa.sql o el archivo está vacío."
+[[ -s "$APP_DIR/actualizar_plan_respaldos.sql" ]] || fail "No se encontró la migración del plan de respaldos."
 
 # La exportación usa una collation propia de MySQL 8 que algunas versiones de
 # MariaDB no reconocen; se sustituye por su equivalente ampliamente compatible.
@@ -117,6 +118,7 @@ GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'localhost';
 FLUSH PRIVILEGES;
 SQL
 "$SQL_CLIENT" --protocol=socket -uroot --default-character-set=utf8mb4 "$DB_NAME" < "$SQL_IMPORT_FILE"
+"$SQL_CLIENT" --protocol=socket -uroot --default-character-set=utf8mb4 "$DB_NAME" < "$APP_DIR/actualizar_plan_respaldos.sql"
 
 # La configuración de la aplicación usa el usuario limitado creado arriba,
 # no la cuenta administrativa root de MariaDB.
@@ -152,6 +154,7 @@ echo "Instalación completada."
 echo "Proyecto: $APP_DIR"
 echo "Aplicación: http://${IP_LOCAL:-localhost}/POS-System-Pro/"
 echo "Base de datos $DB_NAME importada; conexión configurada con el usuario $DB_USER."
+echo "El plan semanal de recordatorios de respaldo quedó instalado."
 echo "MariaDB y Apache quedaron habilitados al iniciar el sistema."
 echo
 echo "Aviso: la contraseña MySQL solicitada está fija en el instalador y en conexion.php. Cámbiala antes de exponer el servidor a una red no confiable."
