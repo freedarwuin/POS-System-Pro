@@ -1,13 +1,14 @@
--- Limpia los datos operativos de la base puntodeventa.
--- Conserva las tablas y datos de: configuracion, metodos_pago, usuarios y licencia.
--- IMPORTANTE: DELETE elimina permanentemente los registros; AUTO_INCREMENT se reinicia al final.
--- Haz un respaldo antes de ejecutar este script.
+-- Limpieza controlada de datos operativos de la base puntodeventa.
+-- Conserva: configuracion, metodos_pago, usuarios y licencia.
+-- ADVERTENCIA: DELETE elimina permanentemente los registros y no puede deshacerse.
+-- Crear una copia de seguridad antes de ejecutar este script.
 
 USE `puntodeventa`;
 
--- MySQL no permite TRUNCATE sobre tablas referenciadas por claves foráneas,
--- incluso con FOREIGN_KEY_CHECKS desactivado. DELETE sí funciona en este caso.
-SET FOREIGN_KEY_CHECKS = 0;
+START TRANSACTION;
+
+SET @guardar_claves_foraneas = @@SESSION.foreign_key_checks;
+SET SESSION foreign_key_checks = 0;
 
 DELETE FROM `abonos_proveedores`;
 DELETE FROM `aperturas_caja`;
@@ -37,7 +38,6 @@ DELETE FROM `ventas`;
 DELETE FROM `ventas_cashea`;
 DELETE FROM `ventas_pagos`;
 
--- DELETE no reinicia AUTO_INCREMENT como TRUNCATE.
 ALTER TABLE `abonos_proveedores` AUTO_INCREMENT = 1;
 ALTER TABLE `aperturas_caja` AUTO_INCREMENT = 1;
 ALTER TABLE `auditoria` AUTO_INCREMENT = 1;
@@ -66,4 +66,8 @@ ALTER TABLE `ventas` AUTO_INCREMENT = 1;
 ALTER TABLE `ventas_cashea` AUTO_INCREMENT = 1;
 ALTER TABLE `ventas_pagos` AUTO_INCREMENT = 1;
 
-SET FOREIGN_KEY_CHECKS = 1;
+SET SESSION foreign_key_checks = @guardar_claves_foraneas;
+
+COMMIT;
+
+SELECT 'Limpieza completada. Las tablas protegidas no fueron modificadas.' AS resultado;
