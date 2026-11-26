@@ -40,6 +40,9 @@ function pos_sidebar_link(string $current_page, array $pages, string $href, stri
         <?php pos_sidebar_link($current_page, ['mercancia_departamentos.php'], 'mercancia_departamentos.php', '📁', 'Departamentos'); ?>
         <?php pos_sidebar_link($current_page, ['gestion_usuarios.php'], 'gestion_usuarios.php', '👥', 'Usuarios'); ?>
         <?php pos_sidebar_link($current_page, ['configuracion.php'], 'configuracion.php', '⚙️', 'Ajustes'); ?>
+        <?php if (($_SESSION['rol'] ?? '') === 'Admin'): ?>
+            <?php pos_sidebar_link($current_page, ['respaldo_db.php'], 'respaldo_db.php', '💾', 'Respaldo SQL'); ?>
+        <?php endif; ?>
         <a href="logout.php" class="pos-sidebar__link pos-sidebar__logout">
             <span class="pos-sidebar__icon" aria-hidden="true">🚪</span><span>Salir</span>
         </a>

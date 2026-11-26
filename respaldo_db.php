@@ -1,71 +1,121 @@
 <?php
+/**
+ * Descarga un respaldo SQL completo de las tablas de la base de datos.
+ * Solo está disponible para usuarios administradores.
+ */
 session_start();
 
-// Seguridad: Solo el Administrador puede generar respaldos
-if (!isset($_SESSION['usuario']) || $_SESSION['rol'] !== 'Admin') {
-    header("Location: ventas.php");
+if (empty($_SESSION['usuario']) || ($_SESSION['rol'] ?? '') !== 'Admin') {
+    header('Location: ventas.php');
     exit();
 }
 
-// Incluimos tu archivo de conexión existente
-include 'conexion.php';
+require_once __DIR__ . '/conexion.php';
 
-// Cambiar la zona horaria si es necesario para el nombre del archivo
-date_default_timezone_get();
-$fecha = date("Y-m-d_H-i-s");
-$nombre_archivo = "respaldo_db_" . $fecha . ".sql";
+mysqli_set_charset($conexion, 'utf8mb4');
 
-// Configurar cabeceras HTTP para forzar la descarga del archivo .sql
-header("Content-Type: application/octet-stream");
-header("Content-Transfer-Encoding: Binary");
-header("Content-disposition: attachment; filename=\"" . $nombre_archivo . "\"");
-
-// Obtener el listado de todas las tablas de la base de datos
-$tablas = array();
-$result = mysqli_query($conexion, "SHOW TABLES");
-while ($row = mysqli_fetch_row($result)) {
-    $tablas[] = $row[0];
+function respaldoDbIdentificador(string $identificador): string
+{
+    return '`' . str_replace('`', '``', $identificador) . '`';
 }
 
-// Generar el contenido del archivo SQL
-$sql_backup = "-- RECONSTRUCCIÓN DE BASE DE DATOS - POS SYSTEM PRO\n";
-$sql_backup .= "-- Fecha de generación: " . date('Y-m-d H:i:s') . "\n\n";
-$sql_backup .= "SET FOREIGN_KEY_CHECKS=0;\n\n";
+function respaldoDbError(string $mensaje): void
+{
+    error_log('[respaldo_db] ' . $mensaje);
+    http_response_code(500);
+    exit('No se pudo generar el respaldo. Revisa el registro de errores del servidor.');
+}
+
+// Cargar primero los nombres y las estructuras para no iniciar una descarga
+// si la conexión no permite consultar las tablas.
+$resultadoTablas = mysqli_query($conexion, 'SHOW TABLES');
+if (!$resultadoTablas) {
+    respaldoDbError(mysqli_error($conexion));
+}
+
+$tablas = [];
+while ($fila = mysqli_fetch_row($resultadoTablas)) {
+    $tablas[] = $fila[0];
+}
+mysqli_free_result($resultadoTablas);
+
+$estructuras = [];
+foreach ($tablas as $tabla) {
+    $tablaSql = respaldoDbIdentificador($tabla);
+    $resultadoCreate = mysqli_query($conexion, 'SHOW CREATE TABLE ' . $tablaSql);
+    if (!$resultadoCreate) {
+        respaldoDbError(mysqli_error($conexion));
+    }
+
+    $filaCreate = mysqli_fetch_row($resultadoCreate);
+    mysqli_free_result($resultadoCreate);
+    if (!isset($filaCreate[1])) {
+        respaldoDbError('No se pudo obtener la estructura de la tabla ' . $tabla);
+    }
+    $estructuras[$tabla] = $filaCreate[1];
+}
+
+$fecha = date('Y-m-d_H-i-s');
+$nombreArchivo = 'respaldo_db_' . $fecha . '.sql';
+header('Content-Type: application/sql; charset=utf-8');
+header('Content-Disposition: attachment; filename="' . $nombreArchivo . '"');
+header('X-Content-Type-Options: nosniff');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+
+// Enviar el SQL progresivamente para evitar conservar el respaldo completo
+// en memoria cuando la base de datos tenga muchos registros.
+echo "-- Respaldo de base de datos - POS System Pro\n";
+echo '-- Generado: ' . date('Y-m-d H:i:s') . "\n\n";
+echo "SET NAMES utf8mb4;\n";
+echo "SET FOREIGN_KEY_CHECKS=0;\n\n";
 
 foreach ($tablas as $tabla) {
-    // 1. Estructura de la tabla (CREATE TABLE)
-    $result_create = mysqli_query($conexion, "SHOW CREATE TABLE `$tabla`");
-    $row_create = mysqli_fetch_row($result_create);
-    
-    $sql_backup .= "DROP TABLE IF EXISTS `$tabla`;\n";
-    $sql_backup .= $row_create[1] . ";\n\n";
-    
-    // 2. Datos de la tabla (INSERT INTO)
-    $result_data = mysqli_query($conexion, "SELECT * FROM `$tabla`");
-    $num_fields = mysqli_num_fields($result_data);
-    
-    while ($row_data = mysqli_fetch_row($result_data)) {
-        $sql_backup .= "INSERT INTO `$tabla` VALUES(";
-        for ($i = 0; $i < $num_fields; $i++) {
-            if (isset($row_data[$i])) {
-                // Escapar caracteres especiales para evitar errores de sintaxis SQL
-                $value = mysqli_real_escape_string($conexion, $row_data[$i]);
-                $sql_backup .= '"' . $value . '"';
-            } else {
-                $sql_backup .= 'NULL';
-            }
-            if ($i < ($num_fields - 1)) {
-                $sql_backup .= ',';
-            }
-        }
-        $sql_backup .= ");\n";
+    $tablaSql = respaldoDbIdentificador($tabla);
+    echo '-- Estructura de ' . $tabla . "\n";
+    echo 'DROP TABLE IF EXISTS ' . $tablaSql . ";\n";
+    echo $estructuras[$tabla] . ";\n\n";
+
+    $resultadoVacio = mysqli_query($conexion, 'SELECT * FROM ' . $tablaSql . ' LIMIT 0');
+    if (!$resultadoVacio) {
+        respaldoDbError(mysqli_error($conexion));
     }
-    $sql_backup .= "\n\n";
+    $campos = mysqli_fetch_fields($resultadoVacio);
+    mysqli_free_result($resultadoVacio);
+
+    if (!$campos) {
+        continue;
+    }
+
+    $nombresCampos = [];
+    foreach ($campos as $campo) {
+        $nombresCampos[] = respaldoDbIdentificador($campo->name);
+    }
+
+    $resultadoDatos = mysqli_query($conexion, 'SELECT * FROM ' . $tablaSql, MYSQLI_USE_RESULT);
+    if (!$resultadoDatos) {
+        respaldoDbError(mysqli_error($conexion));
+    }
+
+    $columnasSql = implode(', ', $nombresCampos);
+    while ($fila = mysqli_fetch_row($resultadoDatos)) {
+        $valoresSql = [];
+        foreach ($fila as $valor) {
+            $valoresSql[] = $valor === null
+                ? 'NULL'
+                : "'" . mysqli_real_escape_string($conexion, $valor) . "'";
+        }
+
+        echo 'INSERT INTO ' . $tablaSql . ' (' . $columnasSql . ') VALUES ('
+            . implode(', ', $valoresSql) . ");\n";
+    }
+    mysqli_free_result($resultadoDatos);
+    echo "\n";
+
+    if (function_exists('ob_flush')) {
+        @ob_flush();
+    }
+    flush();
 }
 
-$sql_backup .= "SET FOREIGN_KEY_CHECKS=1;\n";
-
-// Imprimir el resultado directamente (esto escribe el contenido dentro del archivo descargado)
-echo $sql_backup;
+echo "SET FOREIGN_KEY_CHECKS=1;\n";
 exit();
-?>
