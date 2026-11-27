@@ -64,37 +64,46 @@
   </g>
 
   <text x="72" y="805" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="31" font-weight="700">Administra tus áreas clave</text>
-
   <g font-family="Arial, sans-serif">
-    <rect x="72" y="842" width="450" height="76" rx="16" fill="#FFFFFF" opacity=".09"/>
-    <circle cx="111" cy="880" r="19" fill="#27D3B0"/>
-    <path d="M102 880h18M111 871v18" stroke="#10213F" stroke-width="3" stroke-linecap="round"/>
-    <text x="148" y="889" fill="#FFFFFF" font-size="21" font-weight="700">Ventas y caja</text>
+    <rect x="72" y="830" width="450" height="68" rx="16" fill="#FFFFFF" opacity=".09"/>
+    <circle cx="111" cy="864" r="19" fill="#27D3B0"/>
+    <path d="M102 864h18M111 855v18" stroke="#10213F" stroke-width="3" stroke-linecap="round"/>
+    <text x="148" y="873" fill="#FFFFFF" font-size="21" font-weight="700">Ventas y caja</text>
 
-    <rect x="558" y="842" width="450" height="76" rx="16" fill="#FFFFFF" opacity=".09"/>
-    <circle cx="597" cy="880" r="19" fill="#49A8FF"/>
-    <path d="M587 875h20v14h-20zM592 871h10" fill="none" stroke="#10213F" stroke-width="3" stroke-linejoin="round"/>
-    <text x="634" y="889" fill="#FFFFFF" font-size="21" font-weight="700">Inventario y compras</text>
+    <rect x="558" y="830" width="450" height="68" rx="16" fill="#FFFFFF" opacity=".09"/>
+    <circle cx="597" cy="864" r="19" fill="#49A8FF"/>
+    <path d="M587 859h20v14h-20zM592 855h10" fill="none" stroke="#10213F" stroke-width="3" stroke-linejoin="round"/>
+    <text x="634" y="873" fill="#FFFFFF" font-size="21" font-weight="700">Inventario y compras</text>
 
-    <rect x="72" y="934" width="450" height="76" rx="16" fill="#FFFFFF" opacity=".09"/>
-    <circle cx="111" cy="972" r="19" fill="#FFC65A"/>
-    <circle cx="111" cy="966" r="6" fill="none" stroke="#10213F" stroke-width="3"/>
-    <path d="M100 984c2-9 20-9 22 0" fill="none" stroke="#10213F" stroke-width="3" stroke-linecap="round"/>
-    <text x="148" y="981" fill="#FFFFFF" font-size="21" font-weight="700">Clientes y créditos</text>
+    <rect x="72" y="914" width="450" height="68" rx="16" fill="#FFFFFF" opacity=".09"/>
+    <circle cx="111" cy="948" r="19" fill="#FFC65A"/>
+    <circle cx="111" cy="942" r="6" fill="none" stroke="#10213F" stroke-width="3"/>
+    <path d="M100 960c2-9 20-9 22 0" fill="none" stroke="#10213F" stroke-width="3" stroke-linecap="round"/>
+    <text x="148" y="957" fill="#FFFFFF" font-size="21" font-weight="700">Clientes y créditos</text>
 
-    <rect x="558" y="934" width="450" height="76" rx="16" fill="#FFFFFF" opacity=".09"/>
-    <circle cx="597" cy="972" r="19" fill="#A891FF"/>
-    <path d="M587 983v-21h20v21M592 968h10M592 974h10" fill="none" stroke="#10213F" stroke-width="3" stroke-linejoin="round"/>
-    <text x="634" y="981" fill="#FFFFFF" font-size="21" font-weight="700">Facturación y reportes</text>
+    <rect x="558" y="914" width="450" height="68" rx="16" fill="#FFFFFF" opacity=".09"/>
+    <circle cx="597" cy="948" r="19" fill="#A891FF"/>
+    <path d="M587 959v-21h20v21M592 944h10M592 950h10" fill="none" stroke="#10213F" stroke-width="3" stroke-linejoin="round"/>
+    <text x="634" y="957" fill="#FFFFFF" font-size="21" font-weight="700">Facturación y reportes</text>
   </g>
 
-  <rect x="72" y="1050" width="936" height="220" rx="26" fill="url(#accent)"/>
-  <text x="112" y="1111" fill="#09233A" font-family="Arial, sans-serif" font-size="34" font-weight="800">Haz más fácil la gestión de tu negocio</text>
-  <text x="112" y="1155" fill="#103951" font-family="Arial, sans-serif" font-size="21">Conoce POS System Pro y descubre sus funciones.</text>
-  <rect x="112" y="1182" width="430" height="58" rx="29" fill="#10213F"/>
-  <text x="327" y="1219" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="20" font-weight="700" text-anchor="middle">ESCRÍBEME POR WHATSAPP</text>
-  <text x="577" y="1208" fill="#09233A" font-family="Arial, sans-serif" font-size="21" font-weight="700">+58 414 2231178</text>
-  <text x="577" y="1237" fill="#09233A" font-family="Arial, sans-serif" font-size="21" font-weight="700">+58 412 9056224</text>
+  <rect x="72" y="1010" width="936" height="184" rx="26" fill="url(#accent)"/>
+  <text x="112" y="1054" fill="#09233A" font-family="Arial, sans-serif" font-size="19" font-weight="700" letter-spacing="1">IMPLEMENTACIÓN</text>
+  <text x="112" y="1125" fill="#09233A" font-family="Arial, sans-serif" font-size="54" font-weight="800">$250 NETO</text>
+  <text x="112" y="1162" fill="#103951" font-family="Arial, sans-serif" font-size="19">Pago único de implementación</text>
+  <path d="M450 1038v126" stroke="#0B5262" stroke-opacity=".3" stroke-width="2"/>
+  <text x="490" y="1054" fill="#09233A" font-family="Arial, sans-serif" font-size="21" font-weight="800">INCLUYE</text>
+  <circle cx="500" cy="1081" r="5" fill="#10213F"/>
+  <text x="518" y="1088" fill="#103951" font-family="Arial, sans-serif" font-size="19">Acceso remoto para soporte</text>
+  <circle cx="500" cy="1117" r="5" fill="#10213F"/>
+  <text x="518" y="1124" fill="#103951" font-family="Arial, sans-serif" font-size="19">Licencia por 1 año</text>
+  <circle cx="500" cy="1153" r="5" fill="#10213F"/>
+  <text x="518" y="1160" fill="#103951" font-family="Arial, sans-serif" font-size="19">Actualizaciones automáticas</text>
 
-  <text x="72" y="1312" fill="#AFC2E2" font-family="Arial, sans-serif" font-size="16">POS SYSTEM PRO · Sistema de punto de venta en PHP y MySQL</text>
+  <rect x="72" y="1212" width="936" height="92" rx="22" fill="#FFFFFF" opacity=".09"/>
+  <text x="105" y="1267" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="20" font-weight="700">ESCRÍBEME POR WHATSAPP</text>
+  <text x="590" y="1250" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="20" font-weight="700">+58 412 9056224</text>
+  <text x="590" y="1282" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="20" font-weight="700">+58 414 2231178</text>
+
+  <text x="72" y="1332" fill="#AFC2E2" font-family="Arial, sans-serif" font-size="16">POS SYSTEM PRO · Sistema de punto de venta en PHP y MySQL</text>
 </svg>
