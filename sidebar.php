@@ -38,7 +38,6 @@ function pos_sidebar_link(string $current_page, array $pages, string $href, stri
         <?php pos_sidebar_link($current_page, ['modulo_reporte_stock.php', 'reporte_inventario.php'], 'modulo_reporte_stock.php', '📋', 'Reporte_stock'); ?>
         <?php pos_sidebar_link($current_page, ['creditos.php'], 'creditos.php', '💳', 'Créditos'); ?>
         <?php pos_sidebar_link($current_page, ['mercancia_departamentos.php'], 'mercancia_departamentos.php', '📁', 'Departamentos'); ?>
-        <?php pos_sidebar_link($current_page, ['configuracion.php'], 'configuracion.php', '👥', 'Usuarios'); ?>
         <?php pos_sidebar_link($current_page, ['configuracion.php'], 'configuracion.php', '⚙️', 'Ajustes'); ?>
         <a href="logout.php" class="pos-sidebar__link pos-sidebar__logout">
             <span class="pos-sidebar__icon" aria-hidden="true">🚪</span><span>Salir</span>
