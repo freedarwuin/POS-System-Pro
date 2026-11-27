@@ -2,7 +2,6 @@
 /**
  * Actualizador manual del POS. Requiere una sesión de administrador.
  * Conserva conexion.php, .htaccess y los datos de facturas_adjuntas.
- * Elimina android-app del servidor después de cada actualización.
  */
 session_start();
 
@@ -32,42 +31,6 @@ function posUpdateEndsWith(string $haystack, string $needle): bool
     }
     $length = strlen($needle);
     return $length <= strlen($haystack) && substr($haystack, -$length) === $needle;
-}
-
-function posUpdateRemoveAndroidApp(string $root): void
-{
-    $path = $root . DIRECTORY_SEPARATOR . 'android-app';
-
-    if (is_link($path)) {
-        @unlink($path);
-        return;
-    }
-
-    if (!is_dir($path)) {
-        if (is_file($path)) {
-            @unlink($path);
-        }
-        return;
-    }
-
-    $removeTree = static function (string $directory) use (&$removeTree): void {
-        if (is_link($directory)) {
-            @unlink($directory);
-            return;
-        }
-        if (!is_dir($directory)) {
-            @unlink($directory);
-            return;
-        }
-        foreach (scandir($directory) ?: [] as $item) {
-            if ($item !== '.' && $item !== '..') {
-                $removeTree($directory . DIRECTORY_SEPARATOR . $item);
-            }
-        }
-        @rmdir($directory);
-    };
-
-    $removeTree($path);
 }
 
 $root = __DIR__;
@@ -103,8 +66,6 @@ function posUpdateSkip(string $relativePath): bool
     return $path === 'conexion.php'
         || $path === '.htaccess'
         || posUpdateStartsWith($path, 'facturas_adjuntas/')
-        || $path === 'android-app'
-        || posUpdateStartsWith($path, 'android-app/')
         || posUpdateStartsWith($path, '.git/');
 }
 
@@ -304,10 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['instalar'])) {
                 throw $installError;
             }
 
-            // Elimina cualquier copia anterior de la aplicación móvil del servidor.
-            posUpdateRemoveAndroidApp($root);
-
-            $message = 'Actualización instalada correctamente desde el release ' . $remoteData['tag'] . ' (versión ' . $remoteVersion . '). Se conservaron la conexión a la base de datos, .htaccess y los datos de facturas_adjuntas. La carpeta android-app se eliminó del servidor.';
+            $message = 'Actualización instalada correctamente desde el release ' . $remoteData['tag'] . ' (versión ' . $remoteVersion . '). Se conservaron la conexión a la base de datos, .htaccess y los datos de facturas_adjuntas.';
             $messageType = 'success';
             $localVersion = $remoteVersion;
         } finally {
@@ -380,7 +338,7 @@ $releaseNotes = is_array($remoteData) ? (string) ($remoteData['release_notes'] ?
     <?php else: ?>
         <div class="status">Tu sistema está actualizado<?= is_array($remoteData) ? ' (release ' . htmlspecialchars((string) ($remoteData['tag'] ?? ''), ENT_QUOTES, 'UTF-8') . ')' : '' ?>.</div>
     <?php endif; ?>
-    <p class="warning"><strong>Antes de continuar:</strong> realiza un respaldo de la base de datos y de los archivos del servidor. La actualización reemplaza los archivos de la aplicación, pero conserva la conexión, .htaccess y facturas_adjuntas. Después de actualizar, se elimina la carpeta android-app del servidor si existía.</p>
+    <p class="warning"><strong>Antes de continuar:</strong> realiza un respaldo de la base de datos y de los archivos del servidor. La actualización reemplaza los archivos de la aplicación, pero conserva la conexión a la base de datos, .htaccess y los datos de facturas_adjuntas.</p>
     <?php if ($available): ?>
         <form method="post" onsubmit="return confirm('¿Instalar la actualización desde el último release estable? Asegúrate de tener un respaldo reciente de archivos y base de datos.');">
             <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['pos_update_csrf'], ENT_QUOTES, 'UTF-8') ?>">
