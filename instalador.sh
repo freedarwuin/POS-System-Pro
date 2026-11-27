@@ -102,6 +102,7 @@ mkdir -p "$APP_DIR"
 cp -a "$SOURCE_DIR"/. "$APP_DIR"/
 
 [[ -s "$APP_DIR/puntodeventa.sql" ]] || fail "No se encontró puntodeventa.sql o el archivo está vacío."
+[[ -s "$APP_DIR/limpiar_base_datos.sql" ]] || fail "No se encontró limpiar_base_datos.sql."
 [[ -s "$APP_DIR/actualizar_plan_respaldos.sql" ]] || fail "No se encontró la migración del plan de respaldos."
 
 # La exportación usa una collation propia de MySQL 8 que algunas versiones de
@@ -109,7 +110,7 @@ cp -a "$SOURCE_DIR"/. "$APP_DIR"/
 sed 's/utf8mb4_0900_ai_ci/utf8mb4_unicode_ci/g' \
     "$APP_DIR/puntodeventa.sql" > "$SQL_IMPORT_FILE"
 
-echo "[4/5] Creando e importando la base de datos $DB_NAME..."
+echo "[4/5] Creando e importando el esquema y preparando una base limpia..."
 "$SQL_CLIENT" --protocol=socket -uroot <<SQL
 CREATE DATABASE \`${DB_NAME}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
@@ -119,6 +120,10 @@ FLUSH PRIVILEGES;
 SQL
 "$SQL_CLIENT" --protocol=socket -uroot --default-character-set=utf8mb4 "$DB_NAME" < "$SQL_IMPORT_FILE"
 "$SQL_CLIENT" --protocol=socket -uroot --default-character-set=utf8mb4 "$DB_NAME" < "$APP_DIR/actualizar_plan_respaldos.sql"
+# El dump histórico incluye datos de demostración. En una instalación nueva
+# eliminamos esos registros con el script controlado, que conserva configuración,
+# métodos de pago, usuarios y licencia, y reinicia los contadores AUTO_INCREMENT.
+"$SQL_CLIENT" --protocol=socket -uroot --default-character-set=utf8mb4 "$DB_NAME" < "$APP_DIR/limpiar_base_datos.sql"
 
 # La configuración de la aplicación usa el usuario limitado creado arriba,
 # no la cuenta administrativa root de MariaDB.
@@ -153,8 +158,8 @@ echo
 echo "Instalación completada."
 echo "Proyecto: $APP_DIR"
 echo "Aplicación: http://${IP_LOCAL:-localhost}/POS-System-Pro/"
-echo "Base de datos $DB_NAME importada; conexión configurada con el usuario $DB_USER."
+echo "Base de datos $DB_NAME importada y limpiada; se conservaron configuración, métodos de pago, usuarios y licencia."
 echo "El plan semanal de recordatorios de respaldo quedó instalado."
 echo "MariaDB y Apache quedaron habilitados al iniciar el sistema."
 echo
-echo "Aviso: la contraseña MySQL solicitada está fija en el instalador y en conexion.php. Cámbiala antes de exponer el servidor a una red no confiable."
+echo "Aviso: la contraseña MySQL y las credenciales de demostración están fijas en los archivos. Cámbialas antes de exponer el servidor a una red no confiable."
