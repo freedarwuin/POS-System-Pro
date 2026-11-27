@@ -94,7 +94,7 @@
   <path d="M450 1038v126" stroke="#0B5262" stroke-opacity=".3" stroke-width="2"/>
   <text x="490" y="1054" fill="#09233A" font-family="Arial, sans-serif" font-size="21" font-weight="800">INCLUYE</text>
   <circle cx="500" cy="1081" r="5" fill="#10213F"/>
-  <text x="518" y="1088" fill="#103951" font-family="Arial, sans-serif" font-size="19">Acceso remoto para soporte</text>
+  <text x="518" y="1088" fill="#103951" font-family="Arial, sans-serif" font-size="17">Instalación remota por AnyDesk y soporte 24/7</text>
   <circle cx="500" cy="1117" r="5" fill="#10213F"/>
   <text x="518" y="1124" fill="#103951" font-family="Arial, sans-serif" font-size="19">Licencia por 1 año</text>
   <circle cx="500" cy="1153" r="5" fill="#10213F"/>
