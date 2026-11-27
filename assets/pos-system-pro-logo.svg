@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">POS SystemPro</title>
+  <desc id="desc">Logo de POS SystemPro, sistema de punto de venta para gestionar negocios.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11121a"/>
+      <stop offset="1" stop-color="#1c1018"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fb4168"/>
+      <stop offset="1" stop-color="#be123c"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="13" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="360" rx="34" fill="url(#background)"/>
+  <circle cx="190" cy="180" r="105" fill="#e11d48" opacity=".14" filter="url(#glow)"/>
+  <rect x="77" y="67" width="226" height="226" rx="48" fill="#19151c" stroke="#ffffff" stroke-opacity=".12" stroke-width="2"/>
+  <!-- Punto de venta: pantalla, lector y cesta -->
+  <rect x="126" y="105" width="128" height="105" rx="15" fill="none" stroke="url(#accent)" stroke-width="11"/>
+  <path d="M145 132h90M145 155h47" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="9" opacity=".92"/>
+  <path d="M157 224h66M190 210v14" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="9" opacity=".82"/>
+  <path d="M127 250h116l-12 24h-91z" fill="url(#accent)"/>
+  <circle cx="155" cy="282" r="7" fill="#fff"/>
+  <circle cx="216" cy="282" r="7" fill="#fff"/>
+  <text x="350" y="183" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-3">POS</text>
+  <text x="528" y="183" fill="#e11d48" font-family="Inter, Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-3">SystemPro</text>
+  <rect x="354" y="216" width="90" height="6" rx="3" fill="url(#accent)"/>
+  <text x="354" y="267" fill="#d4d4d8" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="500" letter-spacing="3">GESTIÓN INTELIGENTE PARA TU NEGOCIO</text>
+  <text x="354" y="309" fill="#85858f" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="400" letter-spacing="1.5">VENTAS · INVENTARIO · FACTURACIÓN · REPORTES</text>
+</svg>
