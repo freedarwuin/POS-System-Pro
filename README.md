@@ -1,5 +1,9 @@
 # POS-System-Pro
 
+<p align="center">
+  <img src="assets/pos-system-pro-logo.svg" alt="Logo de POS SystemPro" width="100%">
+</p>
+
 **POS-System-Pro** es una plataforma web de punto de venta desarrollada en PHP y MySQL. Permite gestionar ventas, inventario, facturación, proveedores, créditos, caja, usuarios y reportes desde una interfaz adaptable para escritorio y dispositivos móviles.
 
 > Versión estable actual: **1.1.7**  
