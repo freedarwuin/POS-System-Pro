@@ -1,16 +1,38 @@
 <?php
 /**
  * Cliente mínimo de la API RPC de Supabase para el servicio de licencias.
- * SUPABASE_URL y SUPABASE_ANON_KEY deben definirse en el entorno de PHP.
+ * Define SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en el entorno del servidor.
+ * Se acepta SUPABASE_ANON_KEY como nombre heredado para instalaciones existentes.
  */
 
 function posSupabaseLicenseRpc($function, array $payload)
 {
     $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
-    $anonKey = (string) getenv('SUPABASE_ANON_KEY');
+    $apiKey = (string) getenv('SUPABASE_PUBLISHABLE_KEY');
+    if ($apiKey === '') {
+        $apiKey = (string) getenv('SUPABASE_ANON_KEY');
+    }
 
-    if ($baseUrl === '' || $anonKey === '') {
-        throw new RuntimeException('Falta configurar SUPABASE_URL o SUPABASE_ANON_KEY.');
+    $urlParts = $baseUrl !== '' ? parse_url($baseUrl) : false;
+    if ($urlParts === false || empty($urlParts['host']) || strtolower(isset($urlParts['scheme']) ? $urlParts['scheme'] : '') !== 'https'
+        || isset($urlParts['user']) || isset($urlParts['pass']) || isset($urlParts['query']) || isset($urlParts['fragment'])) {
+        throw new RuntimeException('SUPABASE_URL debe ser una URL HTTPS válida.');
+    }
+    if ($apiKey === '') {
+        throw new RuntimeException('Falta configurar SUPABASE_PUBLISHABLE_KEY.');
+    }
+    if (substr($apiKey, 0, 10) === 'sb_secret_') {
+        throw new RuntimeException('No uses una clave secreta de Supabase en la aplicación PHP. Configura la clave publishable.');
+    }
+    // Las claves anon antiguas son JWT. Rechaza explícitamente service_role si se proporciona por error.
+    $keyParts = explode('.', $apiKey);
+    if (count($keyParts) === 3) {
+        $payloadPart = strtr($keyParts[1], '-_', '+/');
+        $payloadPart .= str_repeat('=', (4 - strlen($payloadPart) % 4) % 4);
+        $claims = json_decode(base64_decode($payloadPart), true);
+        if (is_array($claims) && isset($claims['role']) && $claims['role'] === 'service_role') {
+            throw new RuntimeException('No uses la clave service_role en la aplicación PHP. Configura la clave anon/publishable.');
+        }
     }
     if (!function_exists('curl_init')) {
         throw new RuntimeException('La extensión PHP cURL es necesaria para validar la licencia.');
@@ -27,8 +49,7 @@ function posSupabaseLicenseRpc($function, array $payload)
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => $body,
         CURLOPT_HTTPHEADER => array(
-            'apikey: ' . $anonKey,
-            'Authorization: Bearer ' . $anonKey,
+            'apikey: ' . $apiKey,
             'Content-Type: application/json',
             'Accept: application/json'
         ),

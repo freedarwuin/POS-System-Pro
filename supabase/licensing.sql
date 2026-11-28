@@ -22,15 +22,15 @@ create table if not exists public.pos_license_keys (
 
 alter table public.pos_installations enable row level security;
 alter table public.pos_license_keys enable row level security;
-revoke all on public.pos_installations from anon, authenticated;
-revoke all on public.pos_license_keys from anon, authenticated;
+revoke all on public.pos_installations from public, anon, authenticated;
+revoke all on public.pos_license_keys from public, anon, authenticated;
 
 -- Consulta/crea el periodo demo una sola vez por instalación. No se reinicia al vencer.
 create or replace function public.pos_license_status(p_installation_id uuid)
 returns jsonb
 language plpgsql
 security definer
-set search_path = public, extensions
+set search_path = pg_catalog, public, extensions
 as $$
 declare
     v_installation public.pos_installations%rowtype;
@@ -70,14 +70,15 @@ create or replace function public.pos_activate_annual_license(
 returns jsonb
 language plpgsql
 security definer
-set search_path = public, extensions
+set search_path = pg_catalog, public, extensions
 as $$
 declare
     v_key_hash text;
     v_key public.pos_license_keys%rowtype;
     v_installation public.pos_installations%rowtype;
 begin
-    if p_installation_id is null or p_activation_key is null or length(trim(p_activation_key)) < 32 then
+    if p_installation_id is null or p_activation_key is null
+       or length(trim(p_activation_key)) < 32 or length(trim(p_activation_key)) > 256 then
         return jsonb_build_object('status', 'invalid_key', 'message', 'La clave de licencia no es válida.');
     end if;
 
@@ -136,10 +137,11 @@ begin
 end;
 $$;
 
-revoke all on function public.pos_license_status(uuid) from public;
-revoke all on function public.pos_activate_annual_license(uuid, text) from public;
-grant execute on function public.pos_license_status(uuid) to anon, authenticated;
-grant execute on function public.pos_activate_annual_license(uuid, text) to anon, authenticated;
+-- Las funciones SECURITY DEFINER son la única superficie pública; las tablas permanecen privadas.
+revoke all on function public.pos_license_status(uuid) from public, anon, authenticated;
+revoke all on function public.pos_activate_annual_license(uuid, text) from public, anon, authenticated;
+grant execute on function public.pos_license_status(uuid) to anon;
+grant execute on function public.pos_activate_annual_license(uuid, text) to anon;
 
 -- Alta manual de una clave anual. Sustituye la cadena por una clave aleatoria
 -- de al menos 32 caracteres y entrega la clave original al cliente de forma segura.

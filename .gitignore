@@ -1,0 +1,13 @@
+# Credenciales y archivos de configuración locales
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Configuración de infraestructura que puede contener contraseñas
+conexion.local.php
+config.local.php
+*.pem
+*.key
