@@ -62,7 +62,6 @@ end;
 $$;
 
 -- Cada clave aleatoria de 256 bits se consume una sola vez y queda ligada a una instalación.
--- Repetir la misma petición en la instalación que ya la activó es idempotente.
 create or replace function public.pos_activate_annual_license(
     p_installation_id uuid,
     p_activation_key text
@@ -137,13 +136,7 @@ begin
 end;
 $$;
 
--- Las funciones SECURITY DEFINER son la única superficie pública; las tablas permanecen privadas.
 revoke all on function public.pos_license_status(uuid) from public, anon, authenticated;
 revoke all on function public.pos_activate_annual_license(uuid, text) from public, anon, authenticated;
 grant execute on function public.pos_license_status(uuid) to anon;
 grant execute on function public.pos_activate_annual_license(uuid, text) to anon;
-
--- Alta manual de una clave anual. Sustituye la cadena por una clave aleatoria
--- de al menos 32 caracteres y entrega la clave original al cliente de forma segura.
--- insert into public.pos_license_keys (key_hash)
--- values (encode(extensions.digest(upper('PEGA-AQUI-UNA-CLAVE-ALEATORIA'), 'sha256'), 'hex'));
